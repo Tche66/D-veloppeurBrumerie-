@@ -933,8 +933,8 @@ function TabSettings({ onLogout }: { onLogout: () => void }) {
         </h3>
         <div className="grid sm:grid-cols-2 gap-3 text-sm">
           {[
-            { label: 'Project ID', value: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'brumerie' },
-            { label: 'Auth Domain', value: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'brumerie.firebaseapp.com' },
+            { label: 'Project ID', value: 'brumerie' },
+            { label: 'Auth Domain', value: 'brumerie.firebaseapp.com' },
             { label: 'URL du site', value: 'www.brumerie.com' },
             { label: 'Version dashboard', value: 'v1.0.0' },
           ].map((info) => (
