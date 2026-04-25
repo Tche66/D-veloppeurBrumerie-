@@ -506,30 +506,80 @@ export default function App() {
               </motion.div>
             </div>
 
-            {/* Stats desktop */}
-            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, delay: 0.3 }} className="relative hidden lg:block">
-              <div className="relative w-full aspect-square">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-teal-500/20 rounded-3xl blur-3xl" />
-                <div className="relative w-full h-full bg-gradient-to-br from-blue-600/10 to-teal-500/10 backdrop-blur-sm rounded-3xl border border-white/10 p-8">
-                  <div className="grid grid-cols-2 gap-4 h-full">
-                    {[
-                      { icon: Zap, value: 50, suffix: '+', label: 'Projets', gradient: 'from-blue-600 to-blue-700', r: 2 },
-                      { icon: TrendingUp, value: 100, suffix: '%', label: 'Satisfaits', gradient: 'from-teal-600 to-teal-700', r: -2 },
-                      { icon: Shield, value: 5, suffix: '+', label: 'Années', gradient: 'from-cyan-600 to-cyan-700', r: -2 },
-                      { icon: Users, value: 30, suffix: '+', label: 'Clients', gradient: 'from-blue-500 to-teal-500', r: 2 },
-                    ].map(({ icon: Icon, value, suffix, label, gradient, r }) => (
-                      <motion.div key={label} className={`bg-gradient-to-br ${gradient} rounded-2xl p-6 flex flex-col justify-between`}
-                        whileHover={{ scale: 1.05, rotate: r }}>
-                        <Icon className="w-8 h-8" />
-                        <div>
-                          <div className="text-3xl font-bold"><AnimatedCounter value={value} suffix={suffix} /></div>
-                          <div className="text-sm text-white/70">{label}</div>
-                        </div>
-                      </motion.div>
-                    ))}
+            {/* ── Photo PDG + Stats ── */}
+            <motion.div initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, delay: 0.3 }} className="relative hidden lg:flex flex-col items-center gap-8">
+
+              {/* Carte photo carrée */}
+              <div className="relative w-full max-w-sm mx-auto">
+                {/* Halo dégradé */}
+                <div className="absolute -inset-4 bg-gradient-to-br from-blue-500/40 to-teal-400/40 rounded-3xl blur-2xl" />
+                {/* Cadre principal */}
+                <div className="relative rounded-3xl p-1 bg-gradient-to-br from-blue-500 via-teal-400 to-blue-600 shadow-2xl shadow-teal-500/30">
+                  <div className="rounded-[22px] overflow-hidden bg-slate-900 aspect-square">
+                    {/* ────────────────────────────────────────────────
+                        REMPLACER src ci-dessous par l'URL de ta photo
+                        Ex: src="/images/serge-alain.webp"
+                        ──────────────────────────────────────────────── */}
+                    <img
+                      src="/images/pdg-photo.webp"
+                      alt="Doukoua Tché Serge Alain — PDG Brumerie"
+                      loading="eager"
+                      decoding="async"
+                      className="w-full h-full object-cover object-top"
+                      onError={(e) => {
+                        /* Fallback avatar si image absente */
+                        const t = e.currentTarget;
+                        t.style.display = 'none';
+                        const parent = t.parentElement;
+                        if (parent && !parent.querySelector('.avatar-fallback')) {
+                          const fb = document.createElement('div');
+                          fb.className = 'avatar-fallback w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-600/30 to-teal-600/30';
+                          fb.innerHTML = '<div style="font-size:5rem">👨🏾‍💻</div>';
+                          parent.appendChild(fb);
+                        }
+                      }}
+                    />
                   </div>
                 </div>
+
+                {/* Badge PDG flottant */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 }}
+                  className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap
+                              px-5 py-2 bg-slate-900/90 backdrop-blur-sm border border-teal-500/40
+                              rounded-full text-sm font-semibold shadow-xl shadow-teal-500/20">
+                  <span className="text-teal-400">⚡</span>{' '}
+                  <GradientText>PDG & Lead Dev — Brumerie</GradientText>
+                </motion.div>
+
+                {/* Badge Abidjan */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1 }}
+                  className="absolute -top-3 -right-3 px-3 py-1.5 bg-slate-900/90 backdrop-blur-sm
+                              border border-white/10 rounded-full text-xs font-medium text-gray-300 shadow-lg">
+                  📍 Abidjan, CI
+                </motion.div>
+              </div>
+
+              {/* Mini stats sous la photo */}
+              <div className="grid grid-cols-4 gap-3 w-full max-w-sm">
+                {[
+                  { icon: Zap, value: 50, suffix: '+', label: 'Projets', gradient: 'from-blue-600 to-blue-700', r: 2 },
+                  { icon: TrendingUp, value: 100, suffix: '%', label: 'Clients ✓', gradient: 'from-teal-600 to-teal-700', r: -2 },
+                  { icon: Shield, value: 5, suffix: '+', label: 'Années', gradient: 'from-cyan-600 to-cyan-700', r: -2 },
+                  { icon: Users, value: 30, suffix: '+', label: 'Clients', gradient: 'from-blue-500 to-teal-500', r: 2 },
+                ].map(({ icon: Icon, value, suffix, label, gradient, r }) => (
+                  <motion.div key={label}
+                    className={`bg-gradient-to-br ${gradient} rounded-2xl p-3 flex flex-col items-center justify-center text-center`}
+                    whileHover={{ scale: 1.08, rotate: r }}>
+                    <Icon className="w-4 h-4 mb-1" />
+                    <div className="text-lg font-black"><AnimatedCounter value={value} suffix={suffix} /></div>
+                    <div className="text-xs text-white/70 leading-tight">{label}</div>
+                  </motion.div>
+                ))}
               </div>
             </motion.div>
           </div>

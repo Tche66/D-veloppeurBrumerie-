@@ -1,73 +1,91 @@
-# Brumerie — Site Vitrine Professionnel
+# Brumerie — Site Vitrine + Dashboard Admin
 
-> Site vitrine de Doukoua Tché Serge Alain, PDG de Brumerie.
-> Stack : React 18 + TypeScript + Vite + Tailwind CSS + Framer Motion
+> Stack : React 18 + TypeScript + Vite + Tailwind CSS + Framer Motion + Firebase
 
-## Checklist accomplie
+## Nouveautés v2.0
 
-- Navigation fluide avec scroll doux (offset nav 80px)
-- Menu hamburger fonctionnel + fermeture auto au resize
-- Formulaire de contact valide (nom, email regex, message min 20 chars)
-- Bouton WhatsApp flottant : +225 05 86 86 76 93
-- Images lazy-loading (loading="lazy" decoding="async")
-- Responsive mobile 375px -> desktop 1440px
-- Aucun warning console (particles fixes, sans window cote SSR)
-- Build Vercel sans erreur (vercel.json inclus)
-- Balises meta SEO completes (OG, Twitter Card, Schema.org JSON-LD)
-- Animations Framer Motion au scroll (whileInView, once: true)
+- Photo PDG carrée avec cadre degradé bleu/teal dans le Hero
+- Dashboard Admin complet sur /admin
+- Authentification Firebase sécurisée
+- 7 onglets : Vue d'ensemble, Contenu, Portfolio, Messages, Témoignages, Analytique, Paramètres
 
-## Demarrage rapide
+## Démarrage rapide
 
 ```bash
+# 1. Installer les dépendances
 npm install
+
+# 2. Configurer l'environnement
+cp .env.example .env.local
+# Editer .env.local avec vos vraies valeurs Firebase
+
+# 3. Lancer en dev
 npm run dev
+
+# 4. Build production
 npm run build
-npm run preview
 ```
 
-## Deploiement Vercel
+## Accès Dashboard Admin
 
-Connectez votre repo GitHub sur vercel.com — le vercel.json est pret.
+URL : https://www.brumerie.com/admin
+Email (par défaut pour les tests) : admin@brumerie.ci
+Mot de passe (par défaut pour les tests) : Brumerie2026!
 
-## Personnalisation
+IMPORTANT : En production, activer Firebase Auth et supprimer
+la simulation dans AdminDashboard.tsx handleLogin().
 
-### Numero WhatsApp
-Dans src/app/App.tsx, ligne 22 :
-```ts
-const WA_NUMBER = '2250586867693';
-```
+## Votre photo PDG
 
-### Formulaire de contact
-Remplacer le setTimeout dans ContactForm.handleSubmit :
-```ts
-await fetch('https://formspree.io/f/VOTRE_ID', {
-  method: 'POST',
-  body: JSON.stringify(form),
-  headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
-});
-```
+1. Nommer votre photo : pdg-photo.webp
+2. La placer dans : public/images/pdg-photo.webp
+3. Format recommandé : carré, minimum 600x600px, format WebP
 
-### Images portfolio
-Ajouter dans public/images/ :
-- portfolio-1.webp (AfroChic CI)
-- portfolio-2.webp (ImmoCocody)
-- portfolio-3.webp (GestPaie CI)
-- portfolio-4.webp (Formation Banque)
+## Configuration Firebase (production)
 
-## Structure
+1. Créer un projet sur console.firebase.google.com
+2. Activer Authentication (Email/Password)
+3. Créer le compte admin dans Firebase Console → Authentication → Users
+4. Copier les valeurs dans .env.local
+5. Dans AdminDashboard.tsx, remplacer la simulation par :
+   import { signInWithEmailAndPassword } from 'firebase/auth';
+   import { auth } from './firebase';
+   await signInWithEmailAndPassword(auth, email, password);
+
+## Structure du projet
 
 ```
 brumerie-vitrine/
-├── public/favicon.svg
+├── public/
+│   ├── favicon.svg
+│   └── images/
+│       └── pdg-photo.webp    <- VOTRE PHOTO ICI
 ├── src/
-│   ├── app/App.tsx       <- Composant principal
-│   ├── styles/index.css  <- Tailwind + globaux
+│   ├── app/
+│   │   └── App.tsx           <- Site principal
+│   ├── admin/
+│   │   ├── AdminDashboard.tsx <- Dashboard complet
+│   │   ├── firebase.ts        <- Config Firebase
+│   │   └── main-admin.tsx     <- Entrée admin
+│   ├── styles/
+│   │   └── index.css
 │   └── main.tsx
-├── index.html            <- SEO complet
-├── vite.config.ts
-├── tailwind.config.js
-├── vercel.json
+├── index.html                 <- Site principal (SEO complet)
+├── admin.html                 <- Dashboard admin (noindex)
+├── vite.config.ts             <- Multi-page build
+├── vercel.json                <- Routes /admin + sécurité
+├── .env.example               <- Template variables
 └── package.json
 ```
 
-Concu avec coeur a Abidjan, Cote d'Ivoire — 2026 Brumerie
+## Déploiement Vercel
+
+```bash
+vercel --prod
+```
+
+Ou connecter le repo GitHub sur vercel.com.
+Ajouter les variables d'environnement dans :
+Vercel → Project → Settings → Environment Variables
+
+Conçu avec coeur à Abidjan, Côte d'Ivoire — 2026 Brumerie

@@ -3,16 +3,22 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+
+  // Multi-page : site principal + dashboard admin
   build: {
     outDir: 'dist',
     sourcemap: false,
     minify: 'esbuild',
     rollupOptions: {
+      input: {
+        main:  'index.html',
+        admin: 'admin.html',
+      },
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
           motion: ['motion'],
-          icons: ['lucide-react'],
+          icons:  ['lucide-react'],
         },
       },
     },
