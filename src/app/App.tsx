@@ -297,6 +297,45 @@ function ContactForm() {
 /* ============================================================
    COMPOSANT PRINCIPAL
    ============================================================ */
+/* ============================================================
+   COMPOSANT : Photo PDG avec placeholder visible
+   → Remplacer /images/pdg-photo.webp par votre vraie photo
+   → Format recommandé : carré, WebP, min 600×600px
+   ============================================================ */
+/**
+ * PhotoPDG — Affiche la photo du PDG avec fallback SVG visible
+ * → Pour ajouter votre vraie photo :
+ *   1. Nommez-la pdg-photo.webp (carré, min 600x600px)
+ *   2. Placez-la dans public/images/
+ *   3. Redéployez sur Vercel
+ */
+function PhotoPDG() {
+  const [useWebp, setUseWebp] = useState(true);
+
+  return (
+    <div className="relative w-full h-full bg-gradient-to-br from-slate-800 to-slate-900">
+      {/* Photo WebP — se charge si disponible, sinon SVG placeholder */}
+      {useWebp ? (
+        <img
+          src="/images/pdg-photo.webp"
+          alt="Doukoua Tché Serge Alain — PDG Brumerie"
+          loading="eager"
+          decoding="async"
+          onError={() => setUseWebp(false)}
+          className="w-full h-full object-cover object-center"
+        />
+      ) : (
+        /* Placeholder SVG toujours visible si pas de vraie photo */
+        <img
+          src="/images/pdg-photo.svg"
+          alt="Doukoua Tché Serge Alain — Placeholder PDG"
+          className="w-full h-full object-cover"
+        />
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -506,77 +545,70 @@ export default function App() {
               </motion.div>
             </div>
 
-            {/* ── Photo PDG + Stats ── */}
+            {/* ── Photo PDG — visible mobile ET desktop ── */}
             <motion.div initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, delay: 0.3 }} className="relative hidden lg:flex flex-col items-center gap-8">
+              transition={{ duration: 1, delay: 0.3 }}
+              className="flex flex-col items-center gap-8 order-first lg:order-last">
 
               {/* Carte photo carrée */}
-              <div className="relative w-full max-w-sm mx-auto">
-                {/* Halo dégradé */}
-                <div className="absolute -inset-4 bg-gradient-to-br from-blue-500/40 to-teal-400/40 rounded-3xl blur-2xl" />
-                {/* Cadre principal */}
-                <div className="relative rounded-3xl p-1 bg-gradient-to-br from-blue-500 via-teal-400 to-blue-600 shadow-2xl shadow-teal-500/30">
+              <div className="relative w-64 sm:w-80 lg:w-full lg:max-w-sm mx-auto">
+                {/* Halo dégradé animé */}
+                <div className="absolute -inset-6 bg-gradient-to-br from-blue-500/40 to-teal-400/40 rounded-3xl blur-2xl animate-pulse" />
+
+                {/* Cadre dégradé bleu→teal */}
+                <div className="relative rounded-3xl p-[3px] bg-gradient-to-br from-blue-500 via-teal-400 to-blue-600 shadow-2xl shadow-teal-500/40">
                   <div className="rounded-[22px] overflow-hidden bg-slate-900 aspect-square">
-                    {/* ────────────────────────────────────────────────
-                        REMPLACER src ci-dessous par l'URL de ta photo
-                        Ex: src="/images/serge-alain.webp"
-                        ──────────────────────────────────────────────── */}
-                    <img
-                      src="/images/pdg-photo.webp"
-                      alt="Doukoua Tché Serge Alain — PDG Brumerie"
-                      loading="eager"
-                      decoding="async"
-                      className="w-full h-full object-cover object-top"
-                      onError={(e) => {
-                        /* Fallback avatar si image absente */
-                        const t = e.currentTarget;
-                        t.style.display = 'none';
-                        const parent = t.parentElement;
-                        if (parent && !parent.querySelector('.avatar-fallback')) {
-                          const fb = document.createElement('div');
-                          fb.className = 'avatar-fallback w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-600/30 to-teal-600/30';
-                          fb.innerHTML = '<div style="font-size:5rem">👨🏾‍💻</div>';
-                          parent.appendChild(fb);
-                        }
-                      }}
-                    />
+
+                    {/* ──────────────────────────────────────────────
+                        TA PHOTO : place pdg-photo.webp dans public/images/
+                        Depuis le Dashboard Admin → Paramètres → URL photo
+                        Ou simplement : public/images/pdg-photo.webp
+                        ────────────────────────────────────────────── */}
+                    <PhotoPDG />
+
                   </div>
                 </div>
 
-                {/* Badge PDG flottant */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8 }}
-                  className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap
-                              px-5 py-2 bg-slate-900/90 backdrop-blur-sm border border-teal-500/40
-                              rounded-full text-sm font-semibold shadow-xl shadow-teal-500/20">
+                {/* Badge PDG flottant en bas */}
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.9 }}
+                  className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap
+                              px-4 py-2 bg-slate-900/95 backdrop-blur-sm border border-teal-500/50
+                              rounded-full text-xs sm:text-sm font-semibold shadow-xl">
                   <span className="text-teal-400">⚡</span>{' '}
                   <GradientText>PDG & Lead Dev — Brumerie</GradientText>
                 </motion.div>
 
-                {/* Badge Abidjan */}
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1 }}
-                  className="absolute -top-3 -right-3 px-3 py-1.5 bg-slate-900/90 backdrop-blur-sm
+                {/* Badge localisation */}
+                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1.1 }}
+                  className="absolute -top-3 -right-3 px-3 py-1.5 bg-slate-900/95 backdrop-blur-sm
                               border border-white/10 rounded-full text-xs font-medium text-gray-300 shadow-lg">
                   📍 Abidjan, CI
+                </motion.div>
+
+                {/* Badge disponibilité */}
+                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1.2 }}
+                  className="absolute -top-3 -left-3 px-3 py-1.5 bg-green-900/90 backdrop-blur-sm
+                              border border-green-500/40 rounded-full text-xs font-medium text-green-300 shadow-lg">
+                  🟢 Disponible
                 </motion.div>
               </div>
 
               {/* Mini stats sous la photo */}
-              <div className="grid grid-cols-4 gap-3 w-full max-w-sm">
+              <div className="grid grid-cols-4 gap-2 sm:gap-3 w-64 sm:w-80 lg:w-full lg:max-w-sm mt-4">
                 {[
-                  { icon: Zap, value: 50, suffix: '+', label: 'Projets', gradient: 'from-blue-600 to-blue-700', r: 2 },
-                  { icon: TrendingUp, value: 100, suffix: '%', label: 'Clients ✓', gradient: 'from-teal-600 to-teal-700', r: -2 },
-                  { icon: Shield, value: 5, suffix: '+', label: 'Années', gradient: 'from-cyan-600 to-cyan-700', r: -2 },
-                  { icon: Users, value: 30, suffix: '+', label: 'Clients', gradient: 'from-blue-500 to-teal-500', r: 2 },
+                  { icon: Zap,        value: 50,  suffix: '+', label: 'Projets',  gradient: 'from-blue-600 to-blue-700',  r: 2  },
+                  { icon: TrendingUp, value: 100, suffix: '%', label: '✓ Satisf', gradient: 'from-teal-600 to-teal-700',  r: -2 },
+                  { icon: Shield,     value: 5,   suffix: '+', label: 'Années',   gradient: 'from-cyan-600 to-cyan-700',  r: -2 },
+                  { icon: Users,      value: 30,  suffix: '+', label: 'Clients',  gradient: 'from-blue-500 to-teal-500',  r: 2  },
                 ].map(({ icon: Icon, value, suffix, label, gradient, r }) => (
                   <motion.div key={label}
-                    className={`bg-gradient-to-br ${gradient} rounded-2xl p-3 flex flex-col items-center justify-center text-center`}
+                    className={`bg-gradient-to-br ${gradient} rounded-2xl p-2 sm:p-3 flex flex-col items-center justify-center text-center`}
                     whileHover={{ scale: 1.08, rotate: r }}>
                     <Icon className="w-4 h-4 mb-1" />
-                    <div className="text-lg font-black"><AnimatedCounter value={value} suffix={suffix} /></div>
+                    <div className="text-base sm:text-lg font-black"><AnimatedCounter value={value} suffix={suffix} /></div>
                     <div className="text-xs text-white/70 leading-tight">{label}</div>
                   </motion.div>
                 ))}
