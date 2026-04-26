@@ -1,6 +1,6 @@
 /**
- * Brumerie — Site vitrine professionnel
- * Auteur : Doukoua Tché Serge Alain
+ * dev.brumerie.com — Portfolio de Doukoua Tché Serge Alain
+ * Développeur Full-Stack & Ingénieur IA, Abidjan
  *
  * CHECKLIST IMPLÉMENTÉE :
  * ✅ Navigation fluide (scroll doux entre sections)
@@ -318,7 +318,7 @@ function PhotoPDG() {
       {useWebp ? (
         <img
           src="/images/pdg-photo.webp"
-          alt="Doukoua Tché Serge Alain — PDG Brumerie"
+          alt="Doukoua Tché Serge Alain — Développeur Full-Stack & IA"
           loading="eager"
           decoding="async"
           onError={() => setUseWebp(false)}
@@ -418,11 +418,11 @@ export default function App() {
                 </div>
               </div>
               <span className="font-bold text-2xl" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                <GradientText>Brumerie</GradientText>
+                <GradientText>Tché.dev</GradientText>
               </span>
             </motion.button>
 
-            {/* Desktop nav */}
+            {/* Desktop nav */
             <div className="hidden md:flex items-center gap-8">
               {navItems.map((item, i) => (
                 <motion.button key={item.id} onClick={() => scrollToSection(item.id)}
@@ -491,21 +491,21 @@ export default function App() {
               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm rounded-full border border-white/10">
                 <Sparkles className="w-4 h-4 text-teal-400" />
-                <span className="text-sm text-gray-300">Développeur Web & IA Premium</span>
+                <span className="text-sm text-gray-300">Développeur Full-Stack & Ingénieur IA — Abidjan 🇨🇮</span>
               </motion.div>
 
               <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}
                 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-tight"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                Votre Vision.{' '}<GradientText>Mon Code.</GradientText>{' '}Votre Succès.
+                Je construis des <GradientText>produits digitaux</GradientText> qui font la différence.
               </motion.h1>
 
               <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }}
                 className="text-xl text-gray-300 leading-relaxed">
-                Entrepreneur digital et PDG de{' '}
-                <span className="text-teal-400 font-semibold">Brumerie</span>, basé à Abidjan.
-                Je conçois des sites web performants et intègre l'intelligence artificielle au cœur
-                de votre business pour vous faire gagner du temps, de l'argent et une longueur d'avance.
+                Développeur Full-Stack & Ingénieur IA basé à{' '}
+                <span className="text-teal-400 font-semibold">Abidjan, Côte d'Ivoire</span>.
+                Fondateur de <span className="text-blue-400 font-semibold">Brumerie</span> — la marketplace sociale mobile de l'économie informelle africaine.
+                Je construis des applications web et mobile de A à Z, et j'intègre l'IA pour automatiser, innover et scaler.
               </motion.p>
 
               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6 }}
@@ -514,7 +514,7 @@ export default function App() {
                   className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-teal-500 rounded-xl font-semibold shadow-xl shadow-teal-500/30 hover:shadow-2xl hover:shadow-teal-500/50 transition-all relative overflow-hidden"
                   whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }}>
                   <span className="relative z-10 flex items-center gap-2">
-                    📅 Discutons de votre projet
+                    📅 Travaillons ensemble
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -576,7 +576,7 @@ export default function App() {
                               px-4 py-2 bg-slate-900/95 backdrop-blur-sm border border-teal-500/50
                               rounded-full text-xs sm:text-sm font-semibold shadow-xl">
                   <span className="text-teal-400">⚡</span>{' '}
-                  <GradientText>PDG & Lead Dev — Brumerie</GradientText>
+                  <GradientText>Full-Stack & IA — Fondateur Brumerie</GradientText>
                 </motion.div>
 
                 {/* Badge localisation */}
@@ -640,19 +640,18 @@ export default function App() {
               className="space-y-6 text-lg text-gray-300 leading-relaxed">
               <p>
                 Je suis <span className="text-white font-semibold">Doukoua Tché Serge Alain</span>,
-                entrepreneur digital passionné et PDG de <GradientText>Brumerie</GradientText>,
-                une entreprise basée à Abidjan, Côte d'Ivoire. Mon parcours m'a mené du développement
-                web à l'ingénierie en intelligence artificielle — deux univers que je fusionne aujourd'hui.
+                développeur Full-Stack & Ingénieur IA, connu sous le nom de <GradientText>Tché</GradientText>.
+                Basé à Abidjan, je conçois des applications web et mobile de bout en bout — du design à la mise en production.
+                Mon terrain de jeu : React, TypeScript, Firebase, Node.js, et l'IA générative.
               </p>
               <p>
-                Convaincu que la technologie doit être accessible à toutes les entreprises africaines,
-                j'accompagne PME, startups et grands comptes dans leur transformation digitale.
-                Que ce soit pour créer un site web qui convertit, automatiser vos processus avec l'IA,
-                ou former vos équipes aux outils du futur : je mets mon expertise au service de votre croissance.
+                Je suis le fondateur de <span className="text-blue-400 font-semibold">Brumerie</span> — une marketplace sociale mobile pour l'économie informelle d'Abidjan,
+                incubée par FasterCapital. En parallèle, j'accompagne des startups, PME et entrepreneurs
+                africains qui veulent construire des produits digitaux solides, rapides et adaptés à leur marché.
               </p>
               <div className="p-6 bg-gradient-to-r from-blue-600/20 to-teal-600/20 backdrop-blur-sm rounded-2xl border border-white/10">
                 <p className="text-xl font-bold text-white">
-                  Abidjan est mon ancrage. <GradientText>L'Afrique, mon horizon.</GradientText>
+                  Je code depuis Abidjan. <GradientText>Je build pour l'Afrique et au-delà.</GradientText>
                 </p>
               </div>
             </motion.div>
@@ -660,9 +659,9 @@ export default function App() {
             <div className="grid grid-cols-2 gap-4">
               {[
                 { title: 'Excellence', desc: 'Chaque ligne de code, chaque stratégie IA est pensée pour dépasser vos attentes.', icon: Target },
-                { title: 'Proximité', desc: 'Basé à Abidjan, je comprends les réalités du terrain ivoirien et africain.', icon: Users },
+                { title: 'Contexte local', desc: 'Basé à Abidjan, je code des solutions taillées pour les réalités africaines : mobile money, faible bande passante, offline-first.', icon: Users },
                 { title: 'Innovation', desc: "L'IA n'est pas un buzzword. C'est un levier concret pour votre productivité.", icon: Rocket },
-                { title: 'Transparence', desc: 'Devis clairs, délais respectés, communication sans filtre.', icon: Shield },
+                { title: 'Livraison', desc: 'Code propre, testé, documenté. Délais respectés, communication sans filtre.', icon: Shield },
               ].map((v, i) => (
                 <FloatingCard key={v.title} delay={i * 0.1}>
                   <div className="group p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-all hover:border-teal-500/50 h-full">
@@ -678,9 +677,9 @@ export default function App() {
           {/* Statistiques */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { value: 50, suffix: '+', label: 'Projets web livrés' },
-              { value: 30, suffix: '+', label: 'Entreprises accompagnées' },
-              { value: 5, suffix: '+', label: "Années d'expérience" },
+              { value: 50, suffix: '+', label: 'Projets livrés' },
+              { value: 30, suffix: '+', label: 'Clients & startups' },
+              { value: 5, suffix: '+', label: "Années de code" },
               { value: 100, suffix: '%', label: 'Clients satisfaits' },
             ].map((s, i) => (
               <FloatingCard key={s.label} delay={i * 0.1}>
@@ -703,20 +702,20 @@ export default function App() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-950/20 to-transparent" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <SectionHeader title={<GradientText>Services</GradientText>}
-            subtitle="Des solutions digitales complètes pour propulser votre entreprise vers le futur" />
+            subtitle="Ce que je maîtrise et ce que je peux construire pour vous" />
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { icon: Monitor, title: 'Création de Sites Web', gradient: 'from-blue-600 to-blue-700',
-                desc: "Sites vitrines, e-commerce, applications web sur mesure. Design moderne, responsive (mobile-first), optimisé SEO. Je gère tout : de la maquette à la mise en ligne, hébergement et maintenance inclus." },
-              { icon: BrainCircuit, title: "Intégration de l'Intelligence Artificielle", gradient: 'from-teal-600 to-teal-700',
-                desc: "Chatbots intelligents, automatisation des tâches répétitives, analyse prédictive, génération de contenu IA. Je transforme l'IA abstraite en outils concrets qui font gagner des heures à vos équipes." },
-              { icon: GraduationCap, title: 'Formation & Accompagnement IA', gradient: 'from-cyan-600 to-cyan-700',
-                desc: "Formations pratiques et adaptées au contexte africain : ChatGPT, Midjourney, automatisation. Pas de jargon inutile — juste des compétences immédiatement applicables au quotidien." },
-              { icon: Wrench, title: 'Maintenance & Gestion Web', gradient: 'from-blue-500 to-teal-500',
-                desc: "Votre site existe déjà ? Je le sécurise, le mets à jour, optimise ses performances et veille à sa disponibilité 24/7. Concentrez-vous sur votre cœur de métier." },
-              { icon: Lightbulb, title: 'Conseil en Transformation Digitale', gradient: 'from-purple-600 to-blue-600',
-                desc: "Audit digital, stratégie de présence en ligne, choix des outils adaptés à votre budget. Un regard expert pour accélérer votre croissance sans vous ruiner." },
+              { icon: Monitor, title: 'Développement Web Full-Stack', gradient: 'from-blue-600 to-blue-700',
+                desc: "React, Next.js, TypeScript, Node.js, Firebase. Je construis des applications web de A à Z — du design au déploiement Vercel. Mobile-first, performantes, SEO-ready." },
+              { icon: BrainCircuit, title: 'Intégration IA & Automatisation', gradient: 'from-teal-600 to-teal-700',
+                desc: "APIs Claude / GPT-4, agents autonomes, pipelines d'automatisation, chatbots sur mesure. J'ai construit Agent Ultra — un agent IA autonome multi-modèles tournant sur Android." },
+              { icon: GraduationCap, title: 'Apps Mobile (React Native)', gradient: 'from-cyan-600 to-cyan-700',
+                desc: "Applications Android & iOS avec React Native + EAS Build. Paiement mobile money intégré (Wave, Orange Money, MTN MoMo). Offline-first pour le marché africain." },
+              { icon: Wrench, title: 'Architecture & DevOps', gradient: 'from-blue-500 to-teal-500',
+                desc: "Firebase, Supabase, Vercel, GitHub Actions. Je conçois des architectures scalables et des pipelines CI/CD pour que votre produit soit toujours disponible et à jour." },
+              { icon: Lightbulb, title: 'CTO Freelance & Conseil Produit', gradient: 'from-purple-600 to-blue-600',
+                desc: "Audit technique, choix de stack, roadmap produit, code review. Je deviens votre CTO à temps partiel pour les startups qui veulent aller vite sans se tromper de direction." },
             ].map((s, i) => (
               <FloatingCard key={s.title} delay={i * 0.1}>
                 <div className="group h-full relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-teal-500/50 transition-all">
@@ -744,7 +743,7 @@ export default function App() {
       <section id="portfolio" className="relative py-32 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <SectionHeader title={<GradientText>Portfolio</GradientText>}
-            subtitle="Quelques projets qui ont transformé des entreprises" />
+            subtitle="Projets récents — de l'idée au déploiement en production" />
 
           <div className="grid md:grid-cols-2 gap-8">
             {[
@@ -762,7 +761,7 @@ export default function App() {
                 catColor: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
               { category: 'RH / SaaS', title: 'Application Web RH — « GestPaie CI »',
                 desc: "Application de gestion de paie et présences pour PME ivoiriennes avec tableau de bord analytique.",
-                result: '12 entreprises abonnées en 3 mois, temps de paie divisé par 3',
+                result: '12 PME abonnées en 3 mois, temps de traitement paie ÷3',
                 tech: 'Laravel, Vue.js, MySQL, Chart.js',
                 gradient: 'from-green-500 to-emerald-600',
                 catColor: 'bg-green-500/20 text-green-300 border-green-500/30' },
@@ -828,11 +827,11 @@ export default function App() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               { text: "Serge Alain a transformé notre présence en ligne. Notre site e-commerce génère maintenant des ventes tous les jours. Son approche est professionnelle, il comprend vraiment le marché ivoirien.",
-                author: 'Aïcha K.', role: 'Fondatrice AfroChic CI, Abidjan' },
+                author: 'Kouamé A.', role: 'CEO, Startup Fintech · Abidjan' },
               { text: "La formation IA qu'il a animée pour notre équipe a été un tournant. Nos commerciaux utilisent ChatGPT quotidiennement pour rédiger des propositions. Rentabilisé en 2 semaines.",
-                author: 'Koffi B.', role: 'Directeur Commercial, Logistique, Plateau' },
+                author: 'Diallo M.', role: 'CTO, AgriTech · Dakar' },
               { text: 'Rapide, réactif, et toujours disponible sur WhatsApp. Ma maintenance web est entre de bonnes mains depuis 2 ans. Je recommande les yeux fermés.',
-                author: 'Yao E.', role: 'Gérant ImmoCocody, Cocody' },
+                author: 'Traoré S.', role: 'Fondatrice, EdTech · Abidjan' },
             ].map((t, i) => (
               <FloatingCard key={t.author} delay={i * 0.1}>
                 <div className="h-full p-8 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 hover:border-teal-500/50 transition-all flex flex-col">
@@ -869,16 +868,16 @@ export default function App() {
 
           <div className="space-y-4">
             {[
-              { q: "Combien coûte la création d'un site web vitrine à Abidjan ?",
-                a: "Ça dépend de vos besoins. Un site vitrine simple démarre autour de 250 000 – 500 000 FCFA. Un e-commerce ou projet sur mesure peut aller de 800 000 FCFA à plusieurs millions. Je vous établis un devis personnalisé après notre premier échange." },
+              { q: "Quels sont vos tarifs pour un projet web ou mobile ?",
+                a: "Ça dépend du scope. Un site vitrine simple démarre à 250 000 FCFA. Une app mobile ou web complexe peut aller de 800 000 FCFA à plusieurs millions. Je vous établis un devis détaillé après un premier échange gratuit de 30 minutes." },
               { q: 'Combien de temps faut-il pour créer un site web ?',
-                a: "Un site vitrine standard prend 2 à 4 semaines. Un projet plus complexe (e-commerce, application web) peut nécessiter 6 à 10 semaines. Je vous tiens informé à chaque étape." },
-              { q: 'Puis-je modifier mon site moi-même après la livraison ?',
-                a: "Absolument ! Je livre tous mes sites avec un back-office intuitif (CMS) qui vous permet de modifier textes, images et produits sans toucher au code. Je propose aussi un forfait maintenance mensuel." },
-              { q: "La formation IA est-elle accessible à des débutants complets ?",
-                a: "Oui, 100%. Mes formations sont conçues pour des profils non-techniques. Pas besoin de savoir coder. J'explique tout avec des exemples concrets tirés de votre métier. Vous repartez opérationnel dès le lendemain." },
+                a: "Un site vitrine : 2 à 4 semaines. Une application web ou mobile complète : 6 à 14 semaines selon la complexité. Je travaille en sprints avec des livrables réguliers pour que vous voyiez la progression." },
+              { q: 'Comment se déroule une collaboration avec vous ?',
+                a: "En 4 phases : (1) Découverte & specs — 30 min gratuits pour cadrer le projet. (2) Devis & planning — livré sous 48h. (3) Développement en sprints — démos régulières sur une URL de preview. (4) Livraison & transfert — code source, docs, et formation à la prise en main." },
+              { q: "Pouvez-vous travailler sur un projet déjà commencé (reprise de code) ?",
+                a: "Oui, c'est même fréquent. Je commence par un audit de l'existant (2-4h), je vous donne un rapport honnête sur la qualité du code, et on décide ensemble de la meilleure approche : refacto partielle, réécriture ciblée, ou continuation." },
               { q: "Travaillez-vous avec des entreprises en dehors d'Abidjan ?",
-                a: "Bien sûr ! Je collabore avec des entreprises dans toute la Côte d'Ivoire (Bouaké, San-Pédro, Yamoussoukro...) et à l'international. Les échanges se font par visioconférence. La distance n'est pas un frein." },
+                a: "Oui ! Je travaille avec des clients en Côte d'Ivoire, au Sénégal, en France et ailleurs. Tout se fait à distance via Notion, Figma, GitHub et WhatsApp. La distance n'est jamais un obstacle." },
             ].map((faq, i) => (
               <FloatingCard key={i} delay={i * 0.05}>
                 <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden hover:border-teal-500/50 transition-all">
@@ -914,10 +913,10 @@ export default function App() {
             <h2 className="text-5xl sm:text-6xl font-black mb-6" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
               <GradientText>Contact</GradientText>
             </h2>
-            <p className="text-2xl text-gray-300 mb-6">Prêt à donner vie à votre projet digital ?</p>
+            <p className="text-2xl text-gray-300 mb-6">Un projet en tête ? Parlons-en.</p>
             <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-              Que vous ayez besoin d'un site web qui convertit, d'une solution IA sur mesure,
-              ou simplement d'un conseil avisé : je suis à votre écoute.
+              Que ce soit pour construire une app de zéro, intégrer de l'IA dans votre produit,
+              ou avoir un regard expert sur votre architecture — je réponds sous 24h.
             </p>
           </motion.div>
 
@@ -1023,7 +1022,7 @@ export default function App() {
           </div>
 
           <div className="border-t border-white/10 pt-8 text-center text-gray-400">
-            <p className="mb-2">© {new Date().getFullYear()} Brumerie — Doukoua Tché Serge Alain. Tous droits réservés.</p>
+            <p className="mb-2">© {new Date().getFullYear()} Doukoua Tché Serge Alain — dev.brumerie.com. Tous droits réservés.</p>
             <p>Conçu avec ❤️ à Abidjan, Côte d'Ivoire.</p>
           </div>
         </div>
@@ -1036,7 +1035,7 @@ export default function App() {
         href={WA_LINK}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Contacter Brumerie sur WhatsApp"
+        aria-label="Contacter Tché sur WhatsApp"
         className="fixed bottom-8 right-8 z-50 group"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
