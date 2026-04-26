@@ -422,7 +422,7 @@ export default function App() {
               </span>
             </motion.button>
 
-            {/* Desktop nav */
+            {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-8">
               {navItems.map((item, i) => (
                 <motion.button key={item.id} onClick={() => scrollToSection(item.id)}
