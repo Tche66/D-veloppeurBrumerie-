@@ -303,35 +303,22 @@ function ContactForm() {
    → Format recommandé : carré, WebP, min 600×600px
    ============================================================ */
 /**
- * PhotoPDG — Affiche la photo du PDG avec fallback SVG visible
- * → Pour ajouter votre vraie photo :
- *   1. Nommez-la pdg-photo.webp (carré, min 600x600px)
- *   2. Placez-la dans public/images/
- *   3. Redéployez sur Vercel
+ * PhotoPDG — Doukoua Tché Serge Alain
+ * WebP (haute perf) + JPG fallback universel
  */
 function PhotoPDG() {
-  const [useWebp, setUseWebp] = useState(true);
-
   return (
-    <div className="relative w-full h-full bg-gradient-to-br from-slate-800 to-slate-900">
-      {/* Photo WebP — se charge si disponible, sinon SVG placeholder */}
-      {useWebp ? (
+    <div className="relative w-full h-full bg-slate-900">
+      <picture>
+        <source srcSet="/images/pdg-photo.webp" type="image/webp" />
         <img
-          src="/images/pdg-photo.webp"
-          alt="Doukoua Tché Serge Alain — Développeur Full-Stack & IA"
+          src="/images/pdg-photo.jpg"
+          alt="Doukoua Tché Serge Alain — Développeur Full-Stack & IA, Fondateur Brumerie"
           loading="eager"
           decoding="async"
-          onError={() => setUseWebp(false)}
-          className="w-full h-full object-cover object-center"
+          className="w-full h-full object-cover object-top"
         />
-      ) : (
-        /* Placeholder SVG toujours visible si pas de vraie photo */
-        <img
-          src="/images/pdg-photo.svg"
-          alt="Doukoua Tché Serge Alain — Placeholder PDG"
-          className="w-full h-full object-cover"
-        />
-      )}
+      </picture>
     </div>
   );
 }
