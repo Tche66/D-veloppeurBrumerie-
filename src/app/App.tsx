@@ -23,6 +23,7 @@ import {
   Instagram, Github, CheckCircle, AlertCircle,
 } from 'lucide-react';
 import { useState, useEffect, useRef, type FormEvent } from 'react';
+import { sendMessage } from '../admin/firestore.service';
 import { motion, useScroll, useInView } from 'motion/react';
 
 /* ============================================================
@@ -163,10 +164,15 @@ function ContactForm() {
     e.preventDefault();
     if (!validate()) return;
     setStatus('sending');
-    // ➡️ Remplacer par votre endpoint réel (Formspree, EmailJS, etc.)
-    // Exemple : await fetch('https://formspree.io/f/VOTRE_ID', { method: 'POST', body: JSON.stringify(form), headers: { 'Content-Type': 'application/json' } })
+    // ✅ Envoi réel dans Firebase Firestore → visible dans /admin → Messages
     try {
-      await new Promise<void>((resolve) => setTimeout(resolve, 1500));
+      await sendMessage({
+        nom:     form.nom,
+        email:   form.email,
+        service: form.service,
+        message: form.message,
+        date:    new Date().toLocaleString('fr-CI', { timeZone: 'Africa/Abidjan' }),
+      });
       setStatus('success');
       setForm({ nom: '', email: '', service: '', message: '' });
     } catch {
