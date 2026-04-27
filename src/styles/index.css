@@ -1,10 +1,9 @@
 /* ============================================================
    dev.brumerie.com — Styles globaux
-   @import DOIT être en premier (avant @tailwind)
    ============================================================ */
 
-/* Fonts — Syne (titres) + DM Sans (corps) */
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
+/* Fonts — Space Grotesk (titres) + Inter (corps) — stables et bien supportés */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -27,11 +26,11 @@ body {
   padding: 0;
   background-color: #04040f;
   color: #ffffff;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden;
 }
 
-/* --- Scrollbar dark --- */
+/* --- Scrollbar --- */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: #04040f; }
 ::-webkit-scrollbar-thumb {
@@ -40,38 +39,27 @@ body {
 }
 
 /* --- Sélection --- */
-::selection {
-  background: rgba(0, 255, 255, 0.2);
-  color: #ffffff;
-}
+::selection { background: rgba(0,255,255,0.2); color: #fff; }
 
-/* --- Focus visible --- */
-:focus-visible {
-  outline: 2px solid #0ff;
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-button:focus:not(:focus-visible),
-a:focus:not(:focus-visible) { outline: none; }
+/* --- Focus --- */
+:focus-visible { outline: 2px solid #0ff; outline-offset: 3px; border-radius: 4px; }
+button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
 
 /* --- Formulaires --- */
-input, textarea, select {
-  font-family: 'DM Sans', sans-serif;
-}
-
-/* --- Utilitaires Tailwind manquants --- */
-@layer utilities {
-  .bg-white\/3 { background-color: rgba(255,255,255,0.03); }
-  .bg-white\/8 { background-color: rgba(255,255,255,0.08); }
-  .bg-white\/12 { background-color: rgba(255,255,255,0.12); }
-  .border-white\/8 { border-color: rgba(255,255,255,0.08); }
-  .border-white\/15 { border-color: rgba(255,255,255,0.15); }
-  .border-white\/3 { border-color: rgba(255,255,255,0.03); }
-}
+input, textarea, select { font-family: 'Inter', sans-serif; }
 
 /* --- WhatsApp pulse --- */
 @keyframes wa-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }
-  50%       { box-shadow: 0 0 0 16px rgba(37, 211, 102, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0.4); }
+  50%       { box-shadow: 0 0 0 16px rgba(37,211,102,0); }
 }
 .wa-pulse { animation: wa-pulse 2s ease-in-out infinite; }
+
+/* --- Utilitaires manquants --- */
+@layer utilities {
+  .bg-white\/3  { background-color: rgba(255,255,255,0.03); }
+  .bg-white\/8  { background-color: rgba(255,255,255,0.08); }
+  .bg-white\/12 { background-color: rgba(255,255,255,0.12); }
+  .border-white\/8  { border-color: rgba(255,255,255,0.08); }
+  .border-white\/15 { border-color: rgba(255,255,255,0.15); }
+}

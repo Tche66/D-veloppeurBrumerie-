@@ -7,8 +7,8 @@ import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'motion/react';
 import {
   sendMessage,
-  getContent, getProjects, getReviews,
-  type SiteContent, type Project, type Review,
+  getContent, getProjects, getReviews, getBlogPosts,
+  type SiteContent, type Project, type Review, type BlogPost,
 } from '../admin/firestore.service';
 import {
   MessageCircle, ArrowRight, Zap, CheckCircle,
@@ -145,11 +145,12 @@ function Nav() {
   const bg = useTransform(scrollY, [0, 80], ['rgba(4,4,15,0)', 'rgba(4,4,15,0.95)']);
 
   const links = [
-    { label: 'Offres',    href: '#offres'   },
-    { label: 'Projets',   href: '#projets'  },
-    { label: 'Process',   href: '#process'  },
-    { label: 'Témoignages', href: '#avis'   },
-    { label: 'FAQ',       href: '#faq'      },
+    { label: 'Offres',       href: '#offres'   },
+    { label: 'Projets',      href: '#projets'  },
+    { label: 'Process',      href: '#process'  },
+    { label: 'Témoignages',  href: '#avis'     },
+    { label: 'Blog',         href: '#blog'     },
+    { label: 'FAQ',          href: '#faq'      },
   ];
 
   const scroll = (href: string) => {
@@ -162,7 +163,7 @@ function Nav() {
       className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 backdrop-blur-xl">
       <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
         {/* Logo */}
-        <a href="#" className="font-black text-xl tracking-tight" style={{ fontFamily: 'Syne, sans-serif' }}>
+        <a href="#" className="font-black text-xl tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
           tché<span className="text-[#0ff]">.</span>dev
         </a>
 
@@ -241,7 +242,7 @@ function Hero() {
             <motion.h1
               initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.8 }}
               className="text-5xl sm:text-6xl lg:text-[64px] font-black leading-[1.05] tracking-tight"
-              style={{ fontFamily: 'Syne, sans-serif' }}
+              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
             >
               Je transforme{' '}
               <span className="relative">
@@ -393,7 +394,7 @@ function SectionProbleme() {
     <Section className="py-24 bg-gradient-to-b from-transparent to-[#06060f]">
       <div className="max-w-4xl mx-auto px-5 text-center">
         <Chip>Le problème</Chip>
-        <h2 className="mt-6 text-4xl sm:text-5xl font-black leading-tight" style={{ fontFamily: 'Syne, sans-serif' }}>
+        <h2 className="mt-6 text-4xl sm:text-5xl font-black leading-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
           Vous reconnaissez-vous{' '}
           <span className="text-[#0ff]">ici ?</span>
         </h2>
@@ -482,6 +483,7 @@ interface SiteData {
   content:  SiteContent | null;
   projects: Project[];
   reviews:  Review[];
+  blog:     BlogPost[];
   loading:  boolean;
 }
 
@@ -490,6 +492,7 @@ function useFirestoreData(): SiteData {
     content:  null,
     projects: DEFAULT_PROJECTS_SITE,
     reviews:  DEFAULT_REVIEWS_SITE,
+    blog:     [],
     loading:  true,
   });
 
@@ -498,27 +501,28 @@ function useFirestoreData(): SiteData {
 
     async function load() {
       try {
-        const [content, projects, reviews] = await Promise.all([
+        const [content, projects, reviews, blog] = await Promise.all([
           getContent(),
           getProjects(),
           getReviews(),
+          getBlogPosts(),
         ]);
 
         if (cancelled) return;
 
         setData({
           content,
-          // Garder les defaults si Firestore est vide
           projects: projects.filter(p => p.visible).length > 0
             ? projects.filter(p => p.visible).sort((a, b) => a.order - b.order)
             : DEFAULT_PROJECTS_SITE,
           reviews: reviews.filter(r => r.visible).length > 0
             ? reviews.filter(r => r.visible)
             : DEFAULT_REVIEWS_SITE,
+          // Seulement les articles publiés, du plus récent au plus ancien
+          blog: blog.filter(b => b.published).sort((a, b) => b.date.localeCompare(a.date)),
           loading: false,
         });
       } catch {
-        // Firestore non disponible → garder les defaults silencieusement
         if (!cancelled) setData(prev => ({ ...prev, loading: false }));
       }
     }
@@ -599,7 +603,7 @@ function SectionOffres() {
       <div className="max-w-6xl mx-auto px-5">
         <div className="text-center mb-16">
           <Chip>Les offres</Chip>
-          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             3 offres. <span className="text-[#0ff]">Prix clairs.</span> Résultats garantis.
           </h2>
           <p className="mt-4 text-white/50 text-lg max-w-2xl mx-auto">
@@ -626,7 +630,7 @@ function SectionOffres() {
                 {/* Titre */}
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-3xl">{o.icon}</span>
-                  <h3 className="text-2xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>{o.name}</h3>
+                  <h3 className="text-2xl font-black" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{o.name}</h3>
                 </div>
                 <p className="text-white/50 text-sm mb-6">{o.tagline}</p>
 
@@ -789,7 +793,7 @@ function SectionProjets({ projets: firestoreProjets }: { projets?: Project[] }) 
       <div className="max-w-6xl mx-auto px-5">
         <div className="text-center mb-16">
           <Chip>Projets réels</Chip>
-          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             Des apps que j'ai <span className="text-[#0ff]">réellement livrées</span>
           </h2>
           <p className="mt-4 text-white/50">Pas des mockups. Des produits en production.</p>
@@ -816,7 +820,7 @@ function SectionProjets({ projets: firestoreProjets }: { projets?: Project[] }) 
                       style={{ color: p.color, borderColor: `${p.color}40`, backgroundColor: `${p.color}10` }}>
                       {p.tag}
                     </span>
-                    <h3 className="text-xl font-black mt-2" style={{ fontFamily: 'Syne, sans-serif' }}>{p.title}</h3>
+                    <h3 className="text-xl font-black mt-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{p.title}</h3>
                   </div>
                   {/* Metric */}
                   <div className="flex-shrink-0 text-right">
@@ -891,7 +895,7 @@ function SectionProcess() {
       <div className="max-w-5xl mx-auto px-5">
         <div className="text-center mb-16">
           <Chip>Comment ça marche</Chip>
-          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             Simple. <span className="text-[#0ff]">Rapide.</span> Sans surprise.
           </h2>
           <p className="mt-4 text-white/50 text-lg">
@@ -923,7 +927,7 @@ function SectionProcess() {
                   <div className="flex items-center gap-3 mb-2" style={{ justifyContent: i % 2 !== 0 ? 'flex-end' : 'flex-start' }}>
                     <span className="text-xs font-black" style={{ color: s.color }}>ÉTAPE {s.num}</span>
                   </div>
-                  <h3 className="text-xl font-black mb-2" style={{ fontFamily: 'Syne, sans-serif' }}>{s.title}</h3>
+                  <h3 className="text-xl font-black mb-2" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{s.title}</h3>
                   <p className="text-white/60 text-sm leading-relaxed">{s.desc}</p>
                 </div>
               </motion.div>
@@ -970,7 +974,7 @@ function SectionAvis({ reviews: firestoreReviews }: { reviews?: Review[] }) {
       <div className="max-w-6xl mx-auto px-5">
         <div className="text-center mb-16">
           <Chip>Témoignages</Chip>
-          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             Ce qu'ils disent <span className="text-[#0ff]">après</span>
           </h2>
         </div>
@@ -1017,6 +1021,119 @@ function SectionAvis({ reviews: firestoreReviews }: { reviews?: Review[] }) {
 /* ──────────────────────────────────────────────
    FAQ
    ────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────
+   SECTION BLOG — Articles depuis Firestore
+   Mis à jour depuis /admin → Blog
+   ────────────────────────────────────────────── */
+function SectionBlog({ posts }: { posts: BlogPost[] }) {
+  if (posts.length === 0) return null; // N'affiche rien si pas d'articles publiés
+
+  const CATEGORY_COLORS: Record<string, string> = {
+    'Intelligence Artificielle': '#0ff',
+    'Développement Web':         '#3b82f6',
+    'Business':                  '#25D366',
+    'Formation':                 '#a78bfa',
+    'Actualités':                '#f59e0b',
+    'Tutoriel':                  '#f43f5e',
+  };
+
+  return (
+    <Section id="blog" className="py-24 bg-gradient-to-b from-[#04040f] to-[#06060f]">
+      <div className="max-w-6xl mx-auto px-5">
+        <div className="text-center mb-16">
+          <Chip>Blog</Chip>
+          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+            Articles & <span className="text-[#0ff]">Insights</span>
+          </h2>
+          <p className="mt-4 text-white/50 text-lg max-w-2xl mx-auto">
+            Conseils tech, retours d'expérience et opportunités digitales pour les entrepreneurs africains.
+          </p>
+        </div>
+
+        {/* Grille d'articles */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {posts.map((post, i) => {
+            const catColor = CATEGORY_COLORS[post.category] || '#0ff';
+            return (
+              <motion.article
+                key={post.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="group flex flex-col bg-white/3 border border-white/8 rounded-3xl overflow-hidden
+                  hover:border-[#0ff]/20 hover:bg-white/5 transition-all duration-300 cursor-pointer"
+              >
+                {/* Cover emoji + couleur catégorie */}
+                <div className="relative h-36 flex items-center justify-center"
+                  style={{ background: `linear-gradient(135deg, ${catColor}15, ${catColor}05)` }}>
+                  <div className="absolute top-0 left-0 right-0 h-0.5"
+                    style={{ background: `linear-gradient(90deg, transparent, ${catColor}, transparent)` }} />
+                  <span className="text-6xl">{post.coverEmoji}</span>
+                  {/* Badge catégorie */}
+                  <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1 rounded-full border"
+                    style={{ color: catColor, borderColor: `${catColor}40`, backgroundColor: `${catColor}15` }}>
+                    {post.category}
+                  </span>
+                </div>
+
+                {/* Contenu */}
+                <div className="flex flex-col flex-1 p-6">
+                  <p className="text-xs text-white/30 mb-3 flex items-center gap-2">
+                    <span>📅 {new Date(post.date).toLocaleDateString('fr-CI', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                  </p>
+                  <h3 className="font-black text-lg leading-snug mb-3 group-hover:text-[#0ff] transition-colors"
+                    style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                    {post.title}
+                  </h3>
+                  <p className="text-white/50 text-sm leading-relaxed flex-1 mb-5 line-clamp-3">
+                    {post.excerpt}
+                  </p>
+
+                  {/* Tags */}
+                  {post.tags && (
+                    <div className="flex flex-wrap gap-2 mb-5">
+                      {post.tags.split(',').slice(0, 3).map(tag => (
+                        <span key={tag.trim()} className="text-xs px-2 py-0.5 bg-white/5 border border-white/10 rounded-full text-white/40">
+                          #{tag.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* CTA Lire */}
+                  <div className="flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all"
+                    style={{ color: catColor }}>
+                    Lire l'article
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </motion.article>
+            );
+          })}
+        </div>
+
+        {/* CTA WhatsApp si peu d'articles */}
+        {posts.length < 3 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="mt-12 text-center p-6 bg-white/3 border border-white/8 rounded-2xl"
+          >
+            <p className="text-white/50 text-sm">
+              💡 Tu veux qu'on parle d'un sujet en particulier ?
+            </p>
+            <div className="mt-4">
+              <BtnWA size="sm" msg={encodeURIComponent("Bonjour Tché 👋 j'aimerais que tu écrives un article sur...")}>
+                Suggérer un sujet
+              </BtnWA>
+            </div>
+          </motion.div>
+        )}
+      </div>
+    </Section>
+  );
+}
+
 function SectionFAQ() {
   const [open, setOpen] = useState<number | null>(null);
   const faqs = [
@@ -1051,7 +1168,7 @@ function SectionFAQ() {
       <div className="max-w-3xl mx-auto px-5">
         <div className="text-center mb-16">
           <Chip>FAQ</Chip>
-          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             Les vraies <span className="text-[#0ff]">questions</span>
           </h2>
         </div>
@@ -1107,7 +1224,7 @@ function SectionCTAFinal() {
       <div className="max-w-3xl mx-auto px-5 text-center relative z-10">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <p className="text-[#0ff] font-black text-sm uppercase tracking-widest mb-6">Prêt à commencer ?</p>
-          <h2 className="text-5xl sm:text-6xl font-black leading-tight mb-6" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <h2 className="text-5xl sm:text-6xl font-black leading-tight mb-6" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             Votre idée mérite{' '}
             <span className="text-[#0ff]">mieux que</span>{' '}
             l'attente.
@@ -1174,7 +1291,7 @@ function SectionContact() {
       <div className="max-w-2xl mx-auto px-5">
         <div className="text-center mb-12">
           <Chip>Contact rapide</Chip>
-          <h2 className="mt-6 text-4xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <h2 className="mt-6 text-4xl font-black" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             Préférez <span className="text-[#0ff]">WhatsApp ?</span>
           </h2>
           <p className="mt-4 text-white/50">Réponse garantie sous 2h. C'est le moyen le plus rapide.</p>
@@ -1225,7 +1342,7 @@ function Footer() {
     <footer className="bg-[#02020a] border-t border-white/5 py-10" role="contentinfo">
       <div className="max-w-6xl mx-auto px-5 flex flex-col sm:flex-row items-center justify-between gap-6">
         <div>
-          <p className="font-black text-xl" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <p className="font-black text-xl" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
             tché<span className="text-[#0ff]">.</span>dev
           </p>
           <p className="text-white/30 text-xs mt-1">Je code depuis Abidjan. Je build pour le monde.</p>
@@ -1299,17 +1416,12 @@ function ScrollProgress() {
    APP PRINCIPALE
    ────────────────────────────────────────────── */
 export default function App() {
-  // Chargement des données Firestore — tout ce que tu postes dans /admin s'affiche ici
-  const { projects, reviews } = useFirestoreData();
+  // ✅ Chargement des données Firestore — tout ce que tu postes dans /admin s'affiche ici
+  const { projects, reviews, blog } = useFirestoreData();
 
   return (
     <div className="min-h-screen bg-[#04040f] text-white overflow-x-hidden"
-      style={{ fontFamily: 'DM Sans, Inter, sans-serif' }}>
-
-      {/* Fonts */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap');
-      `}</style>
+      style={{ fontFamily: 'Inter, sans-serif' }}>
 
       <ScrollProgress />
       <Nav />
@@ -1318,13 +1430,16 @@ export default function App() {
       <SectionStats />
       <SectionOffres />
 
-      {/* ✅ Projets depuis Firestore — mis à jour depuis /admin → Portfolio */}
+      {/* ✅ Projets — depuis Firestore (/admin → Portfolio) */}
       <SectionProjets projets={projects} />
 
       <SectionProcess />
 
-      {/* ✅ Avis clients depuis Firestore — mis à jour depuis /admin → Avis Clients */}
+      {/* ✅ Avis clients — depuis Firestore (/admin → Avis Clients) */}
       <SectionAvis reviews={reviews} />
+
+      {/* ✅ Blog — depuis Firestore (/admin → Blog) — n'apparaît que si articles publiés */}
+      <SectionBlog posts={blog} />
 
       <SectionFAQ />
       <SectionCTAFinal />
