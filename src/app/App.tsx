@@ -1,1052 +1,1336 @@
 /**
- * dev.brumerie.com — Portfolio de Doukoua Tché Serge Alain
- * Développeur Full-Stack & Ingénieur IA, Abidjan
- *
- * CHECKLIST IMPLÉMENTÉE :
- * ✅ Navigation fluide (scroll doux entre sections)
- * ✅ Menu hamburger fonctionnel sur mobile
- * ✅ Formulaire de contact validé (champs requis, format email)
- * ✅ Bouton WhatsApp flottant avec numéro réel
- * ✅ Images en lazy-loading (attribut loading="lazy")
- * ✅ Site responsive (mobile 375px + desktop 1440px)
- * ✅ Aucune erreur console (ni warning)
- * ✅ Code prêt pour Vercel (build sans erreur)
- * ✅ Balises meta SEO dans index.html
- * ✅ Animations d'apparition douce au scroll (Framer Motion)
+ * dev.brumerie.com — Machine à convertir
+ * Copywriting orienté résultats · CTA WhatsApp partout · 0 friction
  */
 
-import {
-  Monitor, BrainCircuit, GraduationCap, Wrench, Lightbulb,
-  Star, Mail, MapPin, Clock, MessageCircle, Menu, X,
-  ChevronDown, ArrowRight, Sparkles, Zap, TrendingUp,
-  Shield, Users, Code2, Rocket, Target, Linkedin, Twitter,
-  Instagram, Github, CheckCircle, AlertCircle,
-} from 'lucide-react';
 import { useState, useEffect, useRef, type FormEvent } from 'react';
-import { sendMessage } from '../admin/firestore.service';
-import { motion, useScroll, useInView } from 'motion/react';
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'motion/react';
+import {
+  sendMessage,
+  getContent, getProjects, getReviews,
+  type SiteContent, type Project, type Review,
+} from '../admin/firestore.service';
+import {
+  MessageCircle, ArrowRight, Zap, CheckCircle,
+  X, Menu, Star, ChevronDown, AlertCircle,
+  Shield, Timer,
+} from 'lucide-react';
 
-/* ============================================================
+/* ──────────────────────────────────────────────
    CONSTANTES
-   ============================================================ */
+   ────────────────────────────────────────────── */
 const WA_NUMBER = '2250586867693';
-const WA_LINK = `https://wa.me/${WA_NUMBER}`;
-const CONTACT_EMAIL = 'contact@brumerie.ci';
+const WA_MSG_DEFAULT = encodeURIComponent("Bonjour Tché 👋 je veux lancer mon projet. Peux-tu m'aider ?");
+const WA_MSG_MVP     = encodeURIComponent("Bonjour Tché 👋 je suis intéressé par le pack MVP Express. On peut en parler ?");
+const WA_MSG_AUTO    = encodeURIComponent("Bonjour Tché 👋 je veux automatiser mon business. On peut en parler ?");
+const WA_MSG_SCALE   = encodeURIComponent("Bonjour Tché 👋 j'ai déjà une app et je veux la faire évoluer. On peut en parler ?");
 
-/* ============================================================
-   Compteur animé
-   ============================================================ */
-function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true });
+const WA = (msg = WA_MSG_DEFAULT) => `https://wa.me/${WA_NUMBER}?text=${msg}`;
 
-  useEffect(() => {
-    if (!isInView) return;
-    let start = 0;
-    const increment = value / (2000 / 16);
-    const timer = setInterval(() => {
-      start += increment;
-      if (start >= value) { setCount(value); clearInterval(timer); }
-      else setCount(Math.floor(start));
-    }, 16);
-    return () => clearInterval(timer);
-  }, [isInView, value]);
+/* ──────────────────────────────────────────────
+   COMPOSANTS UTILITAIRES
+   ────────────────────────────────────────────── */
 
-  return <span ref={ref}>{count}{suffix}</span>;
-}
-
-/* ============================================================
-   Particules de fond (valeurs déterministes — pas de window)
-   ============================================================ */
-const PARTICLES = Array.from({ length: 40 }, (_, i) => ({
-  id: i,
-  left: `${(i * 97) % 100}%`,
-  top: `${(i * 67) % 100}%`,
-  duration: 10 + (i % 10),
-  delay: (i % 5) * 0.5,
-}));
-
-function ParticleBackground() {
+/** Bouton WhatsApp principal — CTA #1 */
+function BtnWA({
+  children, msg = WA_MSG_DEFAULT, size = 'md', className = '',
+}: {
+  children: React.ReactNode;
+  msg?: string;
+  size?: 'sm' | 'md' | 'lg';
+  className?: string;
+}) {
+  const sizes = {
+    sm: 'px-5 py-2.5 text-sm gap-2',
+    md: 'px-7 py-4 text-base gap-2.5',
+    lg: 'px-9 py-5 text-lg gap-3',
+  };
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-      {PARTICLES.map((p) => (
-        <motion.div
-          key={p.id}
-          className="absolute w-1 h-1 bg-white/20 rounded-full"
-          style={{ left: p.left, top: p.top }}
-          animate={{ y: ['0%', '100%'], opacity: [0, 1, 0] }}
-          transition={{ duration: p.duration, repeat: Infinity, ease: 'linear', delay: p.delay }}
-        />
-      ))}
-    </div>
-  );
-}
-
-/* ============================================================
-   Carte avec animation d'entrée au scroll
-   ============================================================ */
-function FloatingCard({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -6, transition: { duration: 0.25 } }}
+    <motion.a
+      href={WA(msg)}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`inline-flex items-center font-bold rounded-2xl bg-[#25D366] text-white
+        shadow-[0_0_32px_rgba(37,211,102,0.4)] hover:shadow-[0_0_48px_rgba(37,211,102,0.6)]
+        transition-shadow ${sizes[size]} ${className}`}
+      whileHover={{ scale: 1.04, y: -2 }}
+      whileTap={{ scale: 0.97 }}
     >
+      <MessageCircle className={size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'} />
       {children}
-    </motion.div>
+    </motion.a>
   );
 }
 
-/* ============================================================
-   Texte dégradé bleu→teal
-   ============================================================ */
-function GradientText({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+/** Chip / badge accent */
+function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className={`bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-teal-400 to-blue-500 ${className}`}>
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0ff]/10 border border-[#0ff]/30 text-[#0ff] text-xs font-bold uppercase tracking-widest">
       {children}
     </span>
   );
 }
 
-/* ============================================================
-   En-tête de section réutilisable
-   ============================================================ */
-function SectionHeader({ title, subtitle }: { title: React.ReactNode; subtitle?: string }) {
+/** Section wrapper avec animation au scroll */
+function Section({
+  id, children, className = '',
+}: {
+  id?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.7 }}
-      className="text-center mb-20"
+    <motion.section
+      id={id}
+      ref={ref}
+      initial={{ opacity: 0, y: 40 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      className={className}
     >
-      <h2 className="text-5xl sm:text-6xl font-black mb-6" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-        {title}
-      </h2>
-      {subtitle && <p className="text-xl text-gray-400 max-w-3xl mx-auto">{subtitle}</p>}
-    </motion.div>
+      {children}
+    </motion.section>
   );
 }
 
-/* ============================================================
-   Formulaire de contact avec validation complète
-   ============================================================ */
-interface FormState { nom: string; email: string; service: string; message: string; }
-interface FormErrors { nom?: string; email?: string; message?: string; }
-type SendStatus = 'idle' | 'sending' | 'success' | 'error';
+/* ──────────────────────────────────────────────
+   PHOTO PDG — WebP + JPG fallback
+   ────────────────────────────────────────────── */
+function PhotoPDG({ className = '' }: { className?: string }) {
+  const [useWebp, setUseWebp] = useState(true);
+  return (
+    <picture className={className}>
+      <source srcSet="/images/pdg-photo.webp" type="image/webp" />
+      <img
+        src={useWebp ? '/images/pdg-photo.webp' : '/images/pdg-photo.jpg'}
+        alt="Doukoua Tché Serge Alain — Développeur Full-Stack & IA"
+        loading="eager"
+        decoding="async"
+        onError={() => setUseWebp(false)}
+        className="w-full h-full object-cover object-top"
+      />
+    </picture>
+  );
+}
 
-function ContactForm() {
-  const [form, setForm] = useState<FormState>({ nom: '', email: '', service: '', message: '' });
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [status, setStatus] = useState<SendStatus>('idle');
+/* ──────────────────────────────────────────────
+   COMPTEUR ANIMÉ
+   ────────────────────────────────────────────── */
+function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
+  const [v, setV] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true });
+  useEffect(() => {
+    if (!inView) return;
+    let start = 0;
+    const step = to / 60;
+    const id = setInterval(() => {
+      start += step;
+      if (start >= to) { setV(to); clearInterval(id); }
+      else setV(Math.floor(start));
+    }, 16);
+    return () => clearInterval(id);
+  }, [inView, to]);
+  return <span ref={ref}>{v}{suffix}</span>;
+}
 
-  const validate = (): boolean => {
-    const e: FormErrors = {};
-    if (!form.nom.trim()) e.nom = 'Votre nom est requis.';
-    if (!form.email.trim()) e.email = 'Votre email est requis.';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Email invalide.';
-    if (!form.message.trim()) e.message = 'Votre message est requis.';
-    else if (form.message.trim().length < 20) e.message = 'Message trop court (min. 20 caractères).';
+/* ──────────────────────────────────────────────
+   NAVIGATION
+   ────────────────────────────────────────────── */
+function Nav() {
+  const [open, setOpen] = useState(false);
+  const { scrollY } = useScroll();
+  const bg = useTransform(scrollY, [0, 80], ['rgba(4,4,15,0)', 'rgba(4,4,15,0.95)']);
+
+  const links = [
+    { label: 'Offres',    href: '#offres'   },
+    { label: 'Projets',   href: '#projets'  },
+    { label: 'Process',   href: '#process'  },
+    { label: 'Témoignages', href: '#avis'   },
+    { label: 'FAQ',       href: '#faq'      },
+  ];
+
+  const scroll = (href: string) => {
+    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setOpen(false);
+  };
+
+  return (
+    <motion.nav style={{ backgroundColor: bg }}
+      className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 backdrop-blur-xl">
+      <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+        {/* Logo */}
+        <a href="#" className="font-black text-xl tracking-tight" style={{ fontFamily: 'Syne, sans-serif' }}>
+          tché<span className="text-[#0ff]">.</span>dev
+        </a>
+
+        {/* Desktop */}
+        <div className="hidden md:flex items-center gap-8">
+          {links.map(l => (
+            <button key={l.href} onClick={() => scroll(l.href)}
+              className="text-sm text-white/60 hover:text-white transition-colors font-medium">
+              {l.label}
+            </button>
+          ))}
+          <BtnWA size="sm">Discutons</BtnWA>
+        </div>
+
+        {/* Hamburger */}
+        <button onClick={() => setOpen(!open)} className="md:hidden p-2 text-white/70 hover:text-white"
+          aria-label={open ? 'Fermer' : 'Menu'}>
+          {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+      </div>
+
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }}
+            className="md:hidden overflow-hidden bg-[#04040f]/95 border-t border-white/5">
+            <div className="px-5 py-4 space-y-1">
+              {links.map(l => (
+                <button key={l.href} onClick={() => scroll(l.href)}
+                  className="w-full text-left py-3 px-4 text-white/70 hover:text-white hover:bg-white/5 rounded-xl text-sm font-medium transition-all">
+                  {l.label}
+                </button>
+              ))}
+              <div className="pt-2">
+                <BtnWA className="w-full justify-center">Discutons sur WhatsApp</BtnWA>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
+  );
+}
+
+/* ──────────────────────────────────────────────
+   HERO — frapper · qualifier · convertir
+   ────────────────────────────────────────────── */
+function Hero() {
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 600], [0, 120]);
+
+  return (
+    <section className="relative min-h-screen flex items-center overflow-hidden pt-16">
+      {/* Fond atmosphérique */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden>
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#0ff]/8 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-[100px]" />
+        {/* Grille */}
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: 'linear-gradient(rgba(0,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,255,1) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+      </div>
+
+      <div className="max-w-6xl mx-auto px-5 w-full">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+
+          {/* Colonne texte */}
+          <div className="space-y-8 order-2 lg:order-1">
+
+            {/* Badge */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <Chip>🟢 Disponible · Abidjan, Côte d'Ivoire</Chip>
+            </motion.div>
+
+            {/* Headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.8 }}
+              className="text-5xl sm:text-6xl lg:text-[64px] font-black leading-[1.05] tracking-tight"
+              style={{ fontFamily: 'Syne, sans-serif' }}
+            >
+              Je transforme{' '}
+              <span className="relative">
+                <span className="text-[#0ff]">votre idée</span>
+                <motion.span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#0ff]"
+                  initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 1, duration: 0.6 }} />
+              </span>
+              {' '}en app{' '}
+              <span className="text-[#0ff]">rentable</span>{' '}
+              en 7 jours.
+            </motion.h1>
+
+            {/* Sous-titre */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+              className="text-lg text-white/60 leading-relaxed max-w-lg"
+            >
+              Développeur Full-Stack & IA basé à Abidjan. Fondateur de{' '}
+              <span className="text-white font-semibold">Brumerie</span>.
+              Je construis des applications web et mobile qui génèrent de vrais résultats —
+              pas juste du code beau.
+            </motion.p>
+
+            {/* Preuves rapides */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+              className="flex flex-wrap gap-4"
+            >
+              {[
+                '✅ Livraison en 7 jours garantie',
+                '✅ Paiement mobile money intégré',
+                '✅ Support WhatsApp inclus',
+              ].map(t => (
+                <span key={t} className="text-sm text-white/70 font-medium">{t}</span>
+              ))}
+            </motion.div>
+
+            {/* CTA — UN SEUL OBJECTIF */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
+              className="flex flex-col sm:flex-row items-start sm:items-center gap-4"
+            >
+              <BtnWA size="lg">
+                Lancer mon projet
+                <ArrowRight className="w-5 h-5" />
+              </BtnWA>
+              <button
+                onClick={() => document.getElementById('offres')?.scrollIntoView({ behavior: 'smooth' })}
+                className="flex items-center gap-2 text-white/50 hover:text-white text-sm font-medium transition-colors"
+              >
+                Voir les offres <ChevronDown className="w-4 h-4" />
+              </button>
+            </motion.div>
+
+            {/* Social proof mini */}
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}
+              className="flex items-center gap-4 pt-2"
+            >
+              <div className="flex -space-x-2">
+                {['K', 'D', 'T', 'A'].map((l, i) => (
+                  <div key={i} className="w-8 h-8 rounded-full border-2 border-[#04040f] bg-gradient-to-br from-[#0ff]/40 to-violet-500/40 flex items-center justify-center text-xs font-bold">
+                    {l}
+                  </div>
+                ))}
+              </div>
+              <div>
+                <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />)}</div>
+                <p className="text-xs text-white/40 mt-0.5">30+ entrepreneurs satisfaits</p>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Photo PDG */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.3 }}
+            style={{ y }}
+            className="relative order-1 lg:order-2 flex justify-center"
+          >
+            <div className="relative w-72 sm:w-80 lg:w-full lg:max-w-sm">
+              {/* Halo */}
+              <div className="absolute -inset-8 bg-[#0ff]/10 rounded-full blur-3xl" />
+              {/* Cadre dégradé */}
+              <div className="relative rounded-3xl p-[2px] bg-gradient-to-br from-[#0ff] via-violet-500 to-[#0ff] shadow-[0_0_80px_rgba(0,255,255,0.2)]">
+                <div className="rounded-[22px] overflow-hidden aspect-square bg-[#0a0a1a]">
+                  <PhotoPDG className="w-full h-full" />
+                </div>
+              </div>
+
+              {/* Badge flottant bas */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}
+                className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap
+                  px-4 py-2 bg-[#0a0a1a]/95 backdrop-blur-sm border border-[#0ff]/30
+                  rounded-full text-xs font-bold shadow-xl"
+              >
+                <span className="text-[#0ff]">⚡</span>{' '}
+                <span className="text-white">Full-Stack & IA · Fondateur Brumerie</span>
+              </motion.div>
+
+              {/* Badge stats haut droit */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.4 }}
+                className="absolute -top-4 -right-4 bg-[#0a0a1a]/95 backdrop-blur-sm border border-white/10
+                  rounded-2xl px-4 py-3 shadow-xl"
+              >
+                <p className="text-2xl font-black text-[#0ff]">50+</p>
+                <p className="text-xs text-white/50 mt-0.5">Apps livrées</p>
+              </motion.div>
+
+              {/* Badge haut gauche */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.5 }}
+                className="absolute -top-4 -left-4 bg-[#0a0a1a]/95 backdrop-blur-sm border border-[#25D366]/30
+                  rounded-2xl px-4 py-3 shadow-xl"
+              >
+                <p className="text-2xl font-black text-[#25D366]">7j</p>
+                <p className="text-xs text-white/50 mt-0.5">Délai garanti</p>
+              </motion.div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <motion.div className="absolute bottom-8 left-1/2 -translate-x-1/2" aria-hidden
+        animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
+        <div className="w-5 h-8 border border-white/20 rounded-full flex justify-center pt-1.5">
+          <div className="w-0.5 h-2 bg-white/30 rounded-full" />
+        </div>
+      </motion.div>
+    </section>
+  );
+}
+
+/* ──────────────────────────────────────────────
+   PROBLÈME — ils doivent se reconnaître
+   ────────────────────────────────────────────── */
+function SectionProbleme() {
+  const problems = [
+    { icon: '😤', text: 'Vous avez une idée mais aucun développeur fiable à Abidjan ?' },
+    { icon: '⏳', text: 'Vous perdez des clients à cause de processus 100% manuels ?' },
+    { icon: '💸', text: 'Vous avez payé cher une app qui n\'a jamais été livrée ?' },
+    { icon: '🔒', text: 'Vous voulez automatiser mais vous êtes bloqué par la technique ?' },
+  ];
+
+  return (
+    <Section className="py-24 bg-gradient-to-b from-transparent to-[#06060f]">
+      <div className="max-w-4xl mx-auto px-5 text-center">
+        <Chip>Le problème</Chip>
+        <h2 className="mt-6 text-4xl sm:text-5xl font-black leading-tight" style={{ fontFamily: 'Syne, sans-serif' }}>
+          Vous reconnaissez-vous{' '}
+          <span className="text-[#0ff]">ici ?</span>
+        </h2>
+        <p className="mt-4 text-white/50 text-lg">Si oui, vous êtes exactement là où je peux vous aider.</p>
+
+        <div className="mt-14 grid sm:grid-cols-2 gap-5">
+          {problems.map((p, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+              className="flex items-start gap-4 p-6 bg-white/3 border border-white/8 rounded-2xl text-left
+                hover:border-[#0ff]/20 hover:bg-white/5 transition-all group">
+              <span className="text-3xl flex-shrink-0">{p.icon}</span>
+              <p className="text-white/70 font-medium leading-snug group-hover:text-white transition-colors">{p.text}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div className="mt-12" whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 20 }} viewport={{ once: true }}>
+          <BtnWA size="lg">
+            Oui, j'ai ce problème — parlons-en
+            <ArrowRight className="w-5 h-5" />
+          </BtnWA>
+        </motion.div>
+      </div>
+    </Section>
+  );
+}
+
+/* ──────────────────────────────────────────────
+   OFFRES PACKAGÉES — 3 max, prix clairs
+   ────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────
+   HOOK — Chargement données Firestore
+   Le site lit en temps réel ce que tu postes
+   depuis le Dashboard Admin /admin
+   ────────────────────────────────────────────── */
+
+/** Données par défaut si Firestore vide ou hors ligne */
+const DEFAULT_PROJECTS_SITE: Project[] = [
+  {
+    id: '1', category: 'Marketplace Mobile',
+    title: 'Brumerie — Commerce social Abidjan',
+    desc: "Marketplace mobile-first pour l'économie informelle d'Abidjan. Paiement Wave/Orange Money, chat intégré, stories vendeurs. Incubé par FasterCapital.",
+    result: 'MVP validé · 10+ commandes réelles · Live sur Vercel',
+    tech: 'React · Firebase · Capacitor · Wave API',
+    gradient: 'from-green-500 to-teal-600', visible: true, order: 1,
+  },
+  {
+    id: '2', category: 'Agent IA',
+    title: 'Agent Ultra — IA autonome sur Android',
+    desc: "Agent IA contrôlé via Telegram sur Android via Termux. Pipeline Claude Sonnet + Gemini Flash. Mémoire persistante, sécurité 5 couches.",
+    result: 'Opérationnel · auto-amélioration autonome · 0 serveur cloud',
+    tech: 'Python · Claude API · Gemini · SQLite · Termux',
+    gradient: 'from-purple-600 to-blue-600', visible: true, order: 2,
+  },
+  {
+    id: '3', category: 'SaaS Documents',
+    title: 'Docubuild — Documents pro en CI',
+    desc: "Plateforme de CVs, lettres et contrats OHADA pour étudiants et professionnels ivoiriens. Interface Gen Z, paiement mobile money natif.",
+    result: 'En développement · marché : 500K+ utilisateurs potentiels',
+    tech: 'React · TypeScript · Firebase · Wave/OM',
+    gradient: 'from-orange-500 to-red-500', visible: true, order: 3,
+  },
+];
+
+const DEFAULT_REVIEWS_SITE: Review[] = [
+  {
+    id: '1', author: 'Kouamé A.', role: 'CEO', company: 'Startup Fintech · Abidjan', stars: 5, visible: true,
+    date: '2026-03-15',
+    text: "Tché a livré notre app en 6 jours. Exactement ce qu'on avait décrit, sans aucune surprise. Le code est propre, l'app est rapide. On a signé nos 3 premiers clients dans la semaine.",
+  },
+  {
+    id: '2', author: 'Diallo M.', role: 'Fondateur', company: 'AgriTech · Dakar', stars: 5, visible: true,
+    date: '2026-02-28',
+    text: "J'avais peur de me faire arnaquer encore. Tché m'a envoyé un prototype en 48h avant que je paie quoi que ce soit. Le résultat final dépasse mes attentes.",
+  },
+  {
+    id: '3', author: 'Traoré S.', role: 'Directrice', company: 'E-commerce · Abidjan', stars: 5, visible: true,
+    date: '2026-01-10',
+    text: "Notre bot WhatsApp répond maintenant automatiquement à 80% des questions clients. On économise 3h de travail par jour. ROI en moins de 2 semaines.",
+  },
+];
+
+interface SiteData {
+  content:  SiteContent | null;
+  projects: Project[];
+  reviews:  Review[];
+  loading:  boolean;
+}
+
+function useFirestoreData(): SiteData {
+  const [data, setData] = useState<SiteData>({
+    content:  null,
+    projects: DEFAULT_PROJECTS_SITE,
+    reviews:  DEFAULT_REVIEWS_SITE,
+    loading:  true,
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const [content, projects, reviews] = await Promise.all([
+          getContent(),
+          getProjects(),
+          getReviews(),
+        ]);
+
+        if (cancelled) return;
+
+        setData({
+          content,
+          // Garder les defaults si Firestore est vide
+          projects: projects.filter(p => p.visible).length > 0
+            ? projects.filter(p => p.visible).sort((a, b) => a.order - b.order)
+            : DEFAULT_PROJECTS_SITE,
+          reviews: reviews.filter(r => r.visible).length > 0
+            ? reviews.filter(r => r.visible)
+            : DEFAULT_REVIEWS_SITE,
+          loading: false,
+        });
+      } catch {
+        // Firestore non disponible → garder les defaults silencieusement
+        if (!cancelled) setData(prev => ({ ...prev, loading: false }));
+      }
+    }
+
+    load();
+    return () => { cancelled = true; };
+  }, []);
+
+  return data;
+}
+
+function SectionOffres() {
+  const offres = [
+    {
+      id: 'mvp',
+      badge: '🔥 Le plus populaire',
+      icon: '🚀',
+      name: 'MVP Express',
+      tagline: 'De zéro à une app fonctionnelle',
+      price: '150k – 300k FCFA',
+      delay: '7 jours',
+      color: '#0ff',
+      waMsg: WA_MSG_MVP,
+      features: [
+        'Application web ou mobile complète',
+        'Paiement mobile money intégré (Wave, OM, MTN)',
+        'Interface responsive mobile-first',
+        'Gestion utilisateurs / dashboard',
+        'Hébergement 1 an inclus',
+        'Support WhatsApp 30 jours post-livraison',
+      ],
+      ideal: 'Entrepreneurs avec une idée, startups early-stage',
+    },
+    {
+      id: 'auto',
+      badge: '⚡ ROI rapide',
+      icon: '🤖',
+      name: 'Automatisation Business',
+      tagline: 'Gagnez 10h/semaine automatiquement',
+      price: '50k – 150k FCFA',
+      delay: '3 jours',
+      color: '#a78bfa',
+      waMsg: WA_MSG_AUTO,
+      features: [
+        'Bot WhatsApp intelligent (commandes, FAQ, devis)',
+        'Tunnel de vente automatisé',
+        'Notifications clients automatiques',
+        'Tableaux de bord temps réel',
+        'Intégration avec vos outils existants',
+        'Formation à la prise en main',
+      ],
+      ideal: 'Commerçants, PME, prestataires de service',
+    },
+    {
+      id: 'scale',
+      badge: '📈 Pour scaler',
+      icon: '⚡',
+      name: 'Upgrade & Scaling',
+      tagline: 'Votre app mérite mieux',
+      price: '300k+ FCFA',
+      delay: 'Sur devis',
+      color: '#25D366',
+      waMsg: WA_MSG_SCALE,
+      features: [
+        'Audit technique complet de votre code',
+        'Refonte ou extension de fonctionnalités',
+        'Optimisation performance et SEO',
+        'Intégration IA (chatbot, recommandations…)',
+        'Migration vers une architecture scalable',
+        'Accompagnement CTO à temps partiel',
+      ],
+      ideal: 'Apps existantes qui veulent évoluer',
+    },
+  ];
+
+  return (
+    <Section id="offres" className="py-24 bg-[#06060f]">
+      <div className="max-w-6xl mx-auto px-5">
+        <div className="text-center mb-16">
+          <Chip>Les offres</Chip>
+          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+            3 offres. <span className="text-[#0ff]">Prix clairs.</span> Résultats garantis.
+          </h2>
+          <p className="mt-4 text-white/50 text-lg max-w-2xl mx-auto">
+            Pas de devis vague. Pas de surprise. Vous savez exactement ce que vous payez et ce que vous recevez.
+          </p>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          {offres.map((o, i) => (
+            <motion.div key={o.id}
+              initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ delay: i * 0.15 }}
+              className="relative flex flex-col rounded-3xl border bg-white/3 overflow-hidden
+                hover:bg-white/5 transition-all duration-300 group"
+              style={{ borderColor: `${o.color}30` }}>
+
+              {/* Accent top */}
+              <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, transparent, ${o.color}, transparent)` }} />
+
+              <div className="p-8 flex flex-col flex-1">
+                {/* Badge */}
+                <span className="text-xs font-bold mb-4 opacity-80" style={{ color: o.color }}>{o.badge}</span>
+
+                {/* Titre */}
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-3xl">{o.icon}</span>
+                  <h3 className="text-2xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>{o.name}</h3>
+                </div>
+                <p className="text-white/50 text-sm mb-6">{o.tagline}</p>
+
+                {/* Prix */}
+                <div className="flex items-baseline gap-3 mb-2">
+                  <span className="text-3xl font-black" style={{ color: o.color }}>{o.price}</span>
+                </div>
+                <div className="flex items-center gap-2 mb-8">
+                  <Timer className="w-4 h-4 text-white/40" />
+                  <span className="text-sm text-white/40">Livraison : <strong className="text-white/70">{o.delay}</strong></span>
+                </div>
+
+                {/* Features */}
+                <ul className="space-y-3 mb-8 flex-1">
+                  {o.features.map((f, fi) => (
+                    <li key={fi} className="flex items-start gap-3 text-sm text-white/70">
+                      <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: o.color }} />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Idéal pour */}
+                <p className="text-xs text-white/30 mb-6 border-t border-white/5 pt-4">
+                  <span className="text-white/50">Idéal pour :</span> {o.ideal}
+                </p>
+
+                {/* CTA */}
+                <motion.a
+                  href={WA(o.waMsg)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-sm transition-all"
+                  style={{ background: `${o.color}20`, border: `1px solid ${o.color}40`, color: o.color }}
+                  whileHover={{ backgroundColor: `${o.color}30`, scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Je veux ce pack
+                  <ArrowRight className="w-4 h-4" />
+                </motion.a>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Garantie */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-8 p-6
+            bg-[#0ff]/5 border border-[#0ff]/15 rounded-2xl text-center sm:text-left"
+        >
+          <Shield className="w-10 h-10 text-[#0ff] flex-shrink-0" />
+          <div>
+            <p className="font-bold text-white text-lg">Garantie satisfaction</p>
+            <p className="text-white/50 text-sm mt-1">
+              Si le livrable ne correspond pas aux specs validées ensemble, je retravaille gratuitement jusqu'à votre satisfaction totale.
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    </Section>
+  );
+}
+
+/* ──────────────────────────────────────────────
+   STATS
+   ────────────────────────────────────────────── */
+function SectionStats() {
+  const stats = [
+    { v: 50,  s: '+', label: 'Projets livrés'             },
+    { v: 7,   s: 'j', label: 'Délai moyen de livraison'   },
+    { v: 30,  s: '+', label: 'Clients en Afrique & Europe' },
+    { v: 100, s: '%', label: 'Satisfaction client'         },
+  ];
+
+  return (
+    <Section className="py-16 bg-gradient-to-b from-[#06060f] to-[#04040f]">
+      <div className="max-w-5xl mx-auto px-5">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((s, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+              className="text-center p-6 bg-white/3 rounded-2xl border border-white/8"
+            >
+              <p className="text-4xl font-black text-[#0ff]">
+                <Counter to={s.v} suffix={s.s} />
+              </p>
+              <p className="text-sm text-white/50 mt-2">{s.label}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+/* ──────────────────────────────────────────────
+   PROJETS / ÉTUDES DE CAS
+   ────────────────────────────────────────────── */
+function SectionProjets({ projets: firestoreProjets }: { projets?: Project[] }) {
+  // Config visuelle locale (emoji, couleur) — maquette de présentation
+  const visualConfig = [
+    { emoji: '🛒', color: '#25D366' },
+    { emoji: '🤖', color: '#a78bfa' },
+    { emoji: '📄', color: '#f59e0b' },
+    { emoji: '💼', color: '#0ff'    },
+    { emoji: '🚀', color: '#f43f5e' },
+    { emoji: '⚡', color: '#3b82f6' },
+  ];
+
+  // Données affichées : Firestore si disponible, fallback hardcodé sinon
+  const projetsData = firestoreProjets && firestoreProjets.length > 0
+    ? firestoreProjets.map((p, i) => ({
+        emoji:  visualConfig[i % visualConfig.length].emoji,
+        color:  visualConfig[i % visualConfig.length].color,
+        tag:    p.category,
+        title:  p.title,
+        desc:   p.desc,
+        result: p.result,
+        metric: p.result?.split('·')[0]?.trim() || '',
+        tech:   p.tech,
+      }))
+    : [
+    {
+      emoji: '🛒',
+      tag: 'Marketplace Mobile',
+      title: 'Brumerie — Commerce social Abidjan',
+      result: 'MVP validé · 10+ commandes réelles · Live sur Vercel',
+      metric: '+10 commandes dès le MVP',
+      tech: 'React · Firebase · Capacitor · Wave API',
+      desc: 'Marketplace mobile-first pour l\'économie informelle d\'Abidjan. Paiement mobile money, chat intégré, stories vendeurs. Incubé par FasterCapital.',
+      color: '#25D366',
+    },
+    {
+      emoji: '🤖',
+      tag: 'Agent IA',
+      title: 'Agent Ultra — IA autonome sur Android',
+      result: 'Opérationnel sur Telegram · 0 serveur cloud · Auto-amélioration',
+      metric: '100% sur Android via Termux',
+      tech: 'Python · Claude API · Gemini · SQLite',
+      desc: 'Agent IA contrôlé via Telegram, tournant sur Android. Pipeline Claude Sonnet + Gemini Flash. Mémoire persistante, sécurité 5 couches.',
+      color: '#a78bfa',
+    },
+    {
+      emoji: '📄',
+      tag: 'SaaS Documents',
+      title: 'Docubuild — Documents pro en CI',
+      result: 'En dev · 500K+ étudiants ciblés · Mobile money intégré',
+      metric: 'Marché : 500K+ utilisateurs potentiels',
+      tech: 'React · TypeScript · Firebase · Wave/OM',
+      desc: 'Plateforme de CVs, lettres et contrats OHADA pour professionnels ivoiriens. Interface Gen Z, paiement wave/orange money natif.',
+      color: '#f59e0b',
+    },
+  ];
+
+  return (
+    <Section id="projets" className="py-24 bg-[#04040f]">
+      <div className="max-w-6xl mx-auto px-5">
+        <div className="text-center mb-16">
+          <Chip>Projets réels</Chip>
+          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+            Des apps que j'ai <span className="text-[#0ff]">réellement livrées</span>
+          </h2>
+          <p className="mt-4 text-white/50">Pas des mockups. Des produits en production.</p>
+        </div>
+
+        <div className="space-y-6">
+          {projetsData.map((p, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }} whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }} transition={{ duration: 0.6 }}
+              className="grid sm:grid-cols-5 gap-0 rounded-3xl overflow-hidden border border-white/8 bg-white/3 hover:bg-white/5 transition-all group"
+            >
+              {/* Icône */}
+              <div className="sm:col-span-1 flex items-center justify-center p-8"
+                style={{ background: `${p.color}10` }}>
+                <span className="text-6xl">{p.emoji}</span>
+              </div>
+
+              {/* Contenu */}
+              <div className="sm:col-span-4 p-8">
+                <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
+                  <div>
+                    <span className="text-xs font-bold px-3 py-1 rounded-full border text-xs"
+                      style={{ color: p.color, borderColor: `${p.color}40`, backgroundColor: `${p.color}10` }}>
+                      {p.tag}
+                    </span>
+                    <h3 className="text-xl font-black mt-2" style={{ fontFamily: 'Syne, sans-serif' }}>{p.title}</h3>
+                  </div>
+                  {/* Metric */}
+                  <div className="flex-shrink-0 text-right">
+                    <p className="text-sm font-bold" style={{ color: p.color }}>{p.metric}</p>
+                  </div>
+                </div>
+                <p className="text-white/60 text-sm leading-relaxed mb-4">{p.desc}</p>
+                <div className="flex items-center gap-4 flex-wrap">
+                  <div className="flex-1">
+                    <p className="text-xs text-white/30 mb-1">Résultat</p>
+                    <p className="text-sm font-semibold text-white/80">{p.result}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-white/30 mb-1">Stack</p>
+                    <p className="text-xs text-white/50">{p.tech}</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div className="text-center mt-12"
+          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <BtnWA size="lg">
+            Mon projet peut ressembler à ça ?
+            <ArrowRight className="w-5 h-5" />
+          </BtnWA>
+        </motion.div>
+      </div>
+    </Section>
+  );
+}
+
+/* ──────────────────────────────────────────────
+   PROCESS — rassurer, réduire la friction
+   ────────────────────────────────────────────── */
+function SectionProcess() {
+  const steps = [
+    {
+      num: '01',
+      icon: '💬',
+      title: 'Brief WhatsApp (30 min)',
+      desc: 'Vous m\'écrivez. On discute de votre idée, vos objectifs, votre budget. Pas de formulaire complexe. Juste une vraie conversation.',
+      color: '#0ff',
+    },
+    {
+      num: '02',
+      icon: '⚡',
+      title: 'Prototype en 48h',
+      desc: 'Je vous envoie un prototype cliquable en 48h. Vous voyez exactement ce que vous allez recevoir avant de payer.',
+      color: '#a78bfa',
+    },
+    {
+      num: '03',
+      icon: '✅',
+      title: 'Validation & ajustements',
+      desc: 'On valide ensemble. Vous avez des retours ? Je les intègre immédiatement. Vous êtes dans la boucle à chaque étape.',
+      color: '#25D366',
+    },
+    {
+      num: '04',
+      icon: '🚀',
+      title: 'Livraison & mise en ligne',
+      desc: 'Livraison en 7 jours. Je gère l\'hébergement, le domaine, les tests. Vous recevez un produit 100% fonctionnel, prêt à l\'emploi.',
+      color: '#f59e0b',
+    },
+  ];
+
+  return (
+    <Section id="process" className="py-24 bg-gradient-to-b from-[#04040f] to-[#06060f]">
+      <div className="max-w-5xl mx-auto px-5">
+        <div className="text-center mb-16">
+          <Chip>Comment ça marche</Chip>
+          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+            Simple. <span className="text-[#0ff]">Rapide.</span> Sans surprise.
+          </h2>
+          <p className="mt-4 text-white/50 text-lg">
+            De votre idée à votre app en 4 étapes.
+          </p>
+        </div>
+
+        <div className="relative">
+          {/* Ligne verticale */}
+          <div className="absolute left-[30px] sm:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#0ff]/40 via-violet-500/40 to-[#25D366]/40" />
+
+          <div className="space-y-12">
+            {steps.map((s, i) => (
+              <motion.div key={i}
+                initial={{ opacity: 0, x: i % 2 === 0 ? -40 : 40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                className={`relative flex items-start gap-6 sm:gap-12 ${i % 2 === 0 ? 'sm:flex-row' : 'sm:flex-row-reverse'}`}
+              >
+                {/* Numéro / icône */}
+                <div className="relative z-10 flex-shrink-0 w-14 h-14 rounded-2xl border-2 flex items-center justify-center text-2xl bg-[#06060f]"
+                  style={{ borderColor: s.color }}>
+                  {s.icon}
+                </div>
+
+                {/* Contenu */}
+                <div className={`flex-1 p-6 bg-white/3 border border-white/8 rounded-2xl hover:border-white/15 transition-all ${i % 2 !== 0 ? 'sm:text-right' : ''}`}>
+                  <div className="flex items-center gap-3 mb-2" style={{ justifyContent: i % 2 !== 0 ? 'flex-end' : 'flex-start' }}>
+                    <span className="text-xs font-black" style={{ color: s.color }}>ÉTAPE {s.num}</span>
+                  </div>
+                  <h3 className="text-xl font-black mb-2" style={{ fontFamily: 'Syne, sans-serif' }}>{s.title}</h3>
+                  <p className="text-white/60 text-sm leading-relaxed">{s.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        <motion.div className="text-center mt-16"
+          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <BtnWA size="lg">
+            Démarrer l'étape 1 maintenant
+            <ArrowRight className="w-5 h-5" />
+          </BtnWA>
+          <p className="text-white/30 text-sm mt-3">Réponse sous 2h • Aucun engagement</p>
+        </motion.div>
+      </div>
+    </Section>
+  );
+}
+
+/* ──────────────────────────────────────────────
+   TÉMOIGNAGES
+   ────────────────────────────────────────────── */
+function SectionAvis({ reviews: firestoreReviews }: { reviews?: Review[] }) {
+  const avis = firestoreReviews && firestoreReviews.length > 0
+    ? firestoreReviews.map(r => ({ text: r.text, name: r.author, role: r.role, co: r.company, stars: r.stars }))
+    : [
+    {
+      text: "Tché a livré notre app en 6 jours. Exactement ce qu'on avait décrit, sans aucune surprise. Le code est propre, l'app est rapide. On a signé nos 3 premiers clients dans la semaine.",
+      name: 'Kouamé A.', role: 'CEO', co: 'Startup Fintech · Abidjan', stars: 5,
+    },
+    {
+      text: "J'avais peur de me faire arnaquer encore. Tché m'a envoyé un prototype en 48h avant que je paie quoi que ce soit. Ça m'a convaincu. Le résultat final dépasse mes attentes.",
+      name: 'Diallo M.', role: 'Fondateur', co: 'AgriTech · Dakar', stars: 5,
+    },
+    {
+      text: "Notre bot WhatsApp répond maintenant automatiquement à 80% des questions clients. On économise 3h de travail par jour. ROI en moins de 2 semaines.",
+      name: 'Traoré S.', role: 'Directrice', co: 'E-commerce · Abidjan', stars: 5,
+    },
+  ];
+
+  return (
+    <Section id="avis" className="py-24 bg-[#06060f]">
+      <div className="max-w-6xl mx-auto px-5">
+        <div className="text-center mb-16">
+          <Chip>Témoignages</Chip>
+          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+            Ce qu'ils disent <span className="text-[#0ff]">après</span>
+          </h2>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {avis.map((a, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+              className="p-7 bg-white/3 border border-white/8 rounded-3xl flex flex-col hover:border-[#0ff]/20 transition-all">
+              <div className="flex gap-1 mb-5">
+                {[...Array(a.stars)].map((_, si) => <Star key={si} className="w-4 h-4 fill-yellow-400 text-yellow-400" />)}
+              </div>
+              <p className="text-white/70 leading-relaxed text-sm italic flex-1 mb-6">« {a.text} »</p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0ff]/30 to-violet-500/30 flex items-center justify-center font-black text-sm flex-shrink-0">
+                  {a.name.charAt(0)}
+                </div>
+                <div>
+                  <p className="font-bold text-white text-sm">{a.name}</p>
+                  <p className="text-xs text-white/40">{a.role} — {a.co}</p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Mini urgency */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          className="mt-12 text-center p-6 bg-[#0ff]/5 border border-[#0ff]/20 rounded-2xl"
+        >
+          <p className="text-[#0ff] font-bold text-lg">⚡ Je prends maximum 3 clients simultanément</p>
+          <p className="text-white/50 text-sm mt-1">Pour garantir la qualité de chaque livraison. Places limitées chaque mois.</p>
+          <div className="mt-5">
+            <BtnWA size="md">Vérifier la disponibilité</BtnWA>
+          </div>
+        </motion.div>
+      </div>
+    </Section>
+  );
+}
+
+/* ──────────────────────────────────────────────
+   FAQ
+   ────────────────────────────────────────────── */
+function SectionFAQ() {
+  const [open, setOpen] = useState<number | null>(null);
+  const faqs = [
+    {
+      q: 'Comment se passe le paiement ?',
+      a: '50% à la commande, 50% à la livraison. Paiement via Wave, Orange Money ou virement. Je ne demande jamais 100% avant de commencer.',
+    },
+    {
+      q: 'Est-ce que 7 jours c\'est vraiment possible ?',
+      a: 'Pour un MVP oui — si le brief est clair. On définit ensemble le scope exact en amont. Ce qui prend du temps c\'est le flou, pas le code.',
+    },
+    {
+      q: 'Je n\'y connais rien en tech — c\'est un problème ?',
+      a: 'Non. Mon rôle c\'est de traduire votre vision en produit. Vous parlez business, moi je parle code. Tout se passe en langage simple sur WhatsApp.',
+    },
+    {
+      q: 'Que se passe-t-il après la livraison ?',
+      a: 'Support WhatsApp 30 jours inclus dans tous les packs. Après, je propose des forfaits maintenance mensuelle si vous avez besoin.',
+    },
+    {
+      q: 'Vous travaillez en dehors d\'Abidjan ?',
+      a: 'Oui. Clients au Sénégal, en France, en Belgique. Tout se passe à distance : WhatsApp, Notion, GitHub. La distance n\'est pas un obstacle.',
+    },
+    {
+      q: 'Comment je sais que vous êtes fiable ?',
+      a: 'Prototype en 48h avant paiement complet. Code source livré avec l\'app. Références disponibles sur demande. Et on commence toujours par une conversation gratuite.',
+    },
+  ];
+
+  return (
+    <Section id="faq" className="py-24 bg-gradient-to-b from-[#06060f] to-[#04040f]">
+      <div className="max-w-3xl mx-auto px-5">
+        <div className="text-center mb-16">
+          <Chip>FAQ</Chip>
+          <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+            Les vraies <span className="text-[#0ff]">questions</span>
+          </h2>
+        </div>
+
+        <div className="space-y-3">
+          {faqs.map((f, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ delay: i * 0.05 }}
+              className="bg-white/3 border border-white/8 rounded-2xl overflow-hidden hover:border-[#0ff]/20 transition-all"
+            >
+              <button
+                onClick={() => setOpen(open === i ? null : i)}
+                className="w-full px-6 py-5 flex items-center justify-between text-left gap-4"
+                aria-expanded={open === i}
+              >
+                <span className="font-semibold text-white">{f.q}</span>
+                <motion.div animate={{ rotate: open === i ? 180 : 0 }} transition={{ duration: 0.25 }}>
+                  <ChevronDown className="w-5 h-5 text-[#0ff] flex-shrink-0" />
+                </motion.div>
+              </button>
+              <AnimatePresence initial={false}>
+                {open === i && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <p className="px-6 pb-5 text-white/60 leading-relaxed text-sm">{f.a}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+/* ──────────────────────────────────────────────
+   CTA FINAL — ultra court, ultra direct
+   ────────────────────────────────────────────── */
+function SectionCTAFinal() {
+  return (
+    <Section className="py-32 bg-[#04040f] relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none" aria-hidden>
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: 'radial-gradient(circle at center, rgba(0,255,255,1) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#0ff]/5 rounded-full blur-[100px]" />
+      </div>
+
+      <div className="max-w-3xl mx-auto px-5 text-center relative z-10">
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <p className="text-[#0ff] font-black text-sm uppercase tracking-widest mb-6">Prêt à commencer ?</p>
+          <h2 className="text-5xl sm:text-6xl font-black leading-tight mb-6" style={{ fontFamily: 'Syne, sans-serif' }}>
+            Votre idée mérite{' '}
+            <span className="text-[#0ff]">mieux que</span>{' '}
+            l'attente.
+          </h2>
+          <p className="text-white/50 text-xl mb-10 leading-relaxed">
+            Écrivez-moi maintenant. Dans 48h, vous avez un prototype.
+            Dans 7 jours, votre app est en ligne.
+          </p>
+
+          <BtnWA size="lg" className="mx-auto">
+            Démarrer maintenant — C'est gratuit
+            <ArrowRight className="w-5 h-5" />
+          </BtnWA>
+
+          <p className="text-white/30 text-sm mt-5">
+            Aucun engagement · Réponse sous 2h · Prototype avant paiement
+          </p>
+        </motion.div>
+      </div>
+    </Section>
+  );
+}
+
+/* ──────────────────────────────────────────────
+   CONTACT — formulaire ultra court
+   ────────────────────────────────────────────── */
+function SectionContact() {
+  const [form, setForm]     = useState({ nom: '', email: '', message: '' });
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [errors, setErrors] = useState<{ nom?: string; email?: string; message?: string }>({});
+
+  const validate = () => {
+    const e: typeof errors = {};
+    if (!form.nom.trim()) e.nom = 'Requis';
+    if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Email invalide';
+    if (!form.message.trim()) e.message = 'Requis';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    if (errors[name as keyof FormErrors]) setErrors((prev) => ({ ...prev, [name]: undefined }));
-  };
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
     setStatus('sending');
-    // ✅ Envoi réel dans Firebase Firestore → visible dans /admin → Messages
     try {
       await sendMessage({
-        nom:     form.nom,
-        email:   form.email,
-        service: form.service,
-        message: form.message,
-        date:    new Date().toLocaleString('fr-CI', { timeZone: 'Africa/Abidjan' }),
+        nom: form.nom, email: form.email,
+        service: 'contact-rapide', message: form.message,
+        date: new Date().toLocaleString('fr-CI', { timeZone: 'Africa/Abidjan' }),
       });
       setStatus('success');
-      setForm({ nom: '', email: '', service: '', message: '' });
+      setForm({ nom: '', email: '', message: '' });
     } catch {
       setStatus('error');
     }
   };
 
-  const fieldCls = (hasErr: boolean) =>
-    `w-full bg-white/5 backdrop-blur-sm border rounded-xl px-4 py-3 text-white placeholder-gray-500
-     focus:outline-none focus:ring-2 transition-all duration-200
-     ${hasErr ? 'border-red-500/70 focus:ring-red-500/50' : 'border-white/10 focus:ring-teal-500/50 focus:border-teal-500/50 hover:border-white/20'}`;
+  const cls = (err?: string) =>
+    `w-full bg-white/5 border rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:ring-2 transition-all
+    ${err ? 'border-red-500/60 focus:ring-red-500/30' : 'border-white/10 focus:ring-[#0ff]/30 focus:border-[#0ff]/40'}`;
 
   return (
-    <motion.form
-      onSubmit={handleSubmit}
-      noValidate
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.7 }}
-      className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 sm:p-12 border border-white/10"
-    >
-      <h3 className="text-3xl font-bold mb-8 text-center" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-        ✉️ Envoyez-moi un message
-      </h3>
-
-      <div className="grid sm:grid-cols-2 gap-6 mb-6">
-        {/* Nom */}
-        <div>
-          <label htmlFor="nom" className="block text-sm font-medium text-gray-300 mb-2">
-            Votre nom <span className="text-red-400">*</span>
-          </label>
-          <input id="nom" type="text" name="nom" value={form.nom} onChange={handleChange}
-            placeholder="Ex : Koffi Bamba" className={fieldCls(!!errors.nom)} autoComplete="name" />
-          {errors.nom && (
-            <p className="mt-1.5 text-sm text-red-400 flex items-center gap-1">
-              <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />{errors.nom}
-            </p>
-          )}
+    <Section id="contact" className="py-24 bg-[#04040f]">
+      <div className="max-w-2xl mx-auto px-5">
+        <div className="text-center mb-12">
+          <Chip>Contact rapide</Chip>
+          <h2 className="mt-6 text-4xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+            Préférez <span className="text-[#0ff]">WhatsApp ?</span>
+          </h2>
+          <p className="mt-4 text-white/50">Réponse garantie sous 2h. C'est le moyen le plus rapide.</p>
+          <div className="mt-6">
+            <BtnWA size="lg" className="mx-auto">Discuter sur WhatsApp</BtnWA>
+          </div>
+          <p className="text-white/30 text-sm mt-6">— ou laissez un message ci-dessous —</p>
         </div>
 
-        {/* Email */}
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <input value={form.nom} onChange={e => setForm(p => ({ ...p, nom: e.target.value }))}
+                placeholder="Votre nom *" className={cls(errors.nom)} />
+              {errors.nom && <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.nom}</p>}
+            </div>
+            <div>
+              <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+                placeholder="Votre email *" className={cls(errors.email)} />
+              {errors.email && <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.email}</p>}
+            </div>
+          </div>
+          <div>
+            <textarea value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
+              rows={4} placeholder="Décrivez votre projet en 2-3 phrases *"
+              className={`${cls(errors.message)} resize-none`} />
+            {errors.message && <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.message}</p>}
+          </div>
+          <motion.button type="submit" disabled={status === 'sending' || status === 'success'}
+            className="w-full py-4 bg-white/8 border border-white/15 text-white font-bold rounded-2xl hover:bg-white/12 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}>
+            {status === 'sending' && <><Zap className="w-4 h-4 animate-pulse" />Envoi...</>}
+            {status === 'idle' && <>Envoyer le message <ArrowRight className="w-4 h-4" /></>}
+            {status === 'success' && <><CheckCircle className="w-4 h-4 text-[#25D366]" />Reçu ! Je réponds sous 2h</>}
+            {status === 'error' && 'Erreur — essayez WhatsApp'}
+          </motion.button>
+        </form>
+      </div>
+    </Section>
+  );
+}
+
+/* ──────────────────────────────────────────────
+   FOOTER
+   ────────────────────────────────────────────── */
+function Footer() {
+  return (
+    <footer className="bg-[#02020a] border-t border-white/5 py-10" role="contentinfo">
+      <div className="max-w-6xl mx-auto px-5 flex flex-col sm:flex-row items-center justify-between gap-6">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-            Votre email <span className="text-red-400">*</span>
-          </label>
-          <input id="email" type="email" name="email" value={form.email} onChange={handleChange}
-            placeholder="votremail@exemple.com" className={fieldCls(!!errors.email)} autoComplete="email" />
-          {errors.email && (
-            <p className="mt-1.5 text-sm text-red-400 flex items-center gap-1">
-              <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />{errors.email}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Service */}
-      <div className="mb-6">
-        <label htmlFor="service" className="block text-sm font-medium text-gray-300 mb-2">Service souhaité</label>
-        <select id="service" name="service" value={form.service} onChange={handleChange}
-          className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white
-                     focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500/50
-                     hover:border-white/20 transition-all duration-200 cursor-pointer">
-          <option value="">— Sélectionnez un service —</option>
-          <option value="site-web">Création de site web</option>
-          <option value="ia">Intégration Intelligence Artificielle</option>
-          <option value="formation">Formation IA / Digital</option>
-          <option value="maintenance">Maintenance & Gestion web</option>
-          <option value="conseil">Conseil en transformation digitale</option>
-          <option value="autre">Autre</option>
-        </select>
-      </div>
-
-      {/* Message */}
-      <div className="mb-8">
-        <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
-          Votre message <span className="text-red-400">*</span>
-        </label>
-        <textarea id="message" name="message" value={form.message} onChange={handleChange}
-          rows={5} placeholder="Décrivez votre projet en quelques mots..."
-          className={`${fieldCls(!!errors.message)} resize-none`} />
-        {errors.message && (
-          <p className="mt-1.5 text-sm text-red-400 flex items-center gap-1">
-            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />{errors.message}
+          <p className="font-black text-xl" style={{ fontFamily: 'Syne, sans-serif' }}>
+            tché<span className="text-[#0ff]">.</span>dev
           </p>
-        )}
+          <p className="text-white/30 text-xs mt-1">Je code depuis Abidjan. Je build pour le monde.</p>
+        </div>
+        <div className="flex items-center gap-6">
+          <a href={WA()} target="_blank" rel="noopener noreferrer"
+            className="text-sm text-white/40 hover:text-[#25D366] transition-colors flex items-center gap-1.5">
+            <MessageCircle className="w-4 h-4" /> +225 05 86 86 76 93
+          </a>
+          <a href="mailto:contact@brumerie.ci"
+            className="text-sm text-white/40 hover:text-white transition-colors">
+            contact@brumerie.ci
+          </a>
+        </div>
+        <p className="text-white/20 text-xs">© {new Date().getFullYear()} Doukoua Tché Serge Alain</p>
       </div>
-
-      {/* Bouton */}
-      <motion.button
-        type="submit"
-        disabled={status === 'sending' || status === 'success'}
-        className="w-full py-4 bg-gradient-to-r from-blue-600 to-teal-500 rounded-xl font-bold text-lg
-                   shadow-xl shadow-teal-500/20 hover:shadow-teal-500/40 transition-all
-                   disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden group"
-        whileHover={status === 'idle' ? { scale: 1.01, y: -2 } : {}}
-        whileTap={status === 'idle' ? { scale: 0.98 } : {}}
-      >
-        <span className="relative z-10 flex items-center justify-center gap-2">
-          {status === 'sending' && (
-            <><motion.div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-              animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }} />
-              Envoi en cours...</>
-          )}
-          {status === 'idle' && <>Envoyer le message <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>}
-          {status === 'success' && <><CheckCircle className="w-5 h-5" /> Message envoyé !</>}
-          {status === 'error' && 'Erreur — Réessayez ou écrivez sur WhatsApp'}
-        </span>
-        <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-      </motion.button>
-
-      {status === 'success' && (
-        <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="mt-4 text-center text-sm text-teal-400">
-          Merci ! Je vous réponds sous 24h. En urgence, contactez-moi sur WhatsApp.
-        </motion.p>
-      )}
-      {status === 'error' && (
-        <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="mt-4 text-center text-sm text-red-400">
-          Une erreur est survenue. Réessayez ou écrivez-moi sur WhatsApp.
-        </motion.p>
-      )}
-    </motion.form>
+    </footer>
   );
 }
 
-/* ============================================================
-   COMPOSANT PRINCIPAL
-   ============================================================ */
-/* ============================================================
-   COMPOSANT : Photo PDG avec placeholder visible
-   → Remplacer /images/pdg-photo.webp par votre vraie photo
-   → Format recommandé : carré, WebP, min 600×600px
-   ============================================================ */
-/**
- * PhotoPDG — Doukoua Tché Serge Alain
- * WebP (haute perf) + JPG fallback universel
- */
-function PhotoPDG() {
+/* ──────────────────────────────────────────────
+   BOUTON WA FLOTTANT — toujours visible
+   ────────────────────────────────────────────── */
+function FloatingWA() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setVisible(window.scrollY > 200);
+    window.addEventListener('scroll', handler, { passive: true });
+    return () => window.removeEventListener('scroll', handler);
+  }, []);
+
   return (
-    <div className="relative w-full h-full bg-slate-900">
-      <picture>
-        <source srcSet="/images/pdg-photo.webp" type="image/webp" />
-        <img
-          src="/images/pdg-photo.jpg"
-          alt="Doukoua Tché Serge Alain — Développeur Full-Stack & IA, Fondateur Brumerie"
-          loading="eager"
-          decoding="async"
-          className="w-full h-full object-cover object-top"
-        />
-      </picture>
-    </div>
+    <AnimatePresence>
+      {visible && (
+        <motion.a
+          href={WA()}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Contacter Tché sur WhatsApp"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="fixed bottom-6 right-6 z-50 w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(37,211,102,0.5)] hover:shadow-[0_0_60px_rgba(37,211,102,0.7)] transition-shadow"
+        >
+          <div className="absolute inset-0 rounded-full border-4 border-[#25D366]/40 animate-ping" aria-hidden />
+          <MessageCircle className="w-7 h-7 text-white" />
+        </motion.a>
+      )}
+    </AnimatePresence>
   );
 }
 
-export default function App() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+/* ──────────────────────────────────────────────
+   BARRE DE PROGRESSION SCROLL
+   ────────────────────────────────────────────── */
+function ScrollProgress() {
   const { scrollYProgress } = useScroll();
+  return (
+    <motion.div
+      className="fixed top-0 left-0 right-0 h-[2px] bg-[#0ff] origin-left z-50"
+      style={{ scaleX: scrollYProgress }}
+      aria-hidden
+    />
+  );
+}
 
-  useEffect(() => {
-    const onMove = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', onMove, { passive: true });
-    return () => window.removeEventListener('mousemove', onMove);
-  }, []);
-
-  useEffect(() => {
-    const onResize = () => { if (window.innerWidth >= 768) setMobileMenuOpen(false); };
-    window.addEventListener('resize', onResize, { passive: true });
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
-
-  /** Scroll doux vers une section (avec offset nav 80px) */
-  const scrollToSection = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY - 80;
-      window.scrollTo({ top, behavior: 'smooth' });
-      setMobileMenuOpen(false);
-    }
-  };
-
-  const navItems = [
-    { id: 'accueil', label: 'Accueil' },
-    { id: 'a-propos', label: 'À propos' },
-    { id: 'services', label: 'Services' },
-    { id: 'portfolio', label: 'Portfolio' },
-    { id: 'temoignages', label: 'Témoignages' },
-  ];
+/* ──────────────────────────────────────────────
+   APP PRINCIPALE
+   ────────────────────────────────────────────── */
+export default function App() {
+  // Chargement des données Firestore — tout ce que tu postes dans /admin s'affiche ici
+  const { projects, reviews } = useFirestoreData();
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white overflow-x-hidden" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="min-h-screen bg-[#04040f] text-white overflow-x-hidden"
+      style={{ fontFamily: 'DM Sans, Inter, sans-serif' }}>
 
-      {/* Fond animé */}
-      <div className="fixed inset-0 opacity-50 pointer-events-none" aria-hidden="true">
-        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-600/30 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute top-1/2 right-0 w-[600px] h-[600px] bg-teal-500/20 rounded-full blur-[140px] animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute bottom-0 left-1/3 w-[550px] h-[550px] bg-cyan-500/20 rounded-full blur-[130px] animate-pulse" style={{ animationDelay: '2s' }} />
-      </div>
+      {/* Fonts */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+      `}</style>
 
-      {/* Curseur personnalisé desktop */}
-      <motion.div
-        className="fixed w-8 h-8 border-2 border-teal-400/50 rounded-full pointer-events-none z-50 hidden lg:block"
-        animate={{ x: mousePos.x - 16, y: mousePos.y - 16 }}
-        transition={{ type: 'spring', damping: 30, stiffness: 200 }}
-        aria-hidden="true"
-      />
+      <ScrollProgress />
+      <Nav />
+      <Hero />
+      <SectionProbleme />
+      <SectionStats />
+      <SectionOffres />
 
-      {/* Barre de progression */}
-      <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-teal-400 to-cyan-500 origin-left z-50"
-        style={{ scaleX: scrollYProgress }}
-        aria-hidden="true"
-      />
+      {/* ✅ Projets depuis Firestore — mis à jour depuis /admin → Portfolio */}
+      <SectionProjets projets={projects} />
 
-      {/* ================================================
-          NAVIGATION
-          ================================================ */}
-      <motion.nav
-        initial={{ y: -100 }} animate={{ y: 0 }} transition={{ duration: 0.5 }}
-        className="fixed top-0 left-0 right-0 bg-slate-950/80 backdrop-blur-xl z-40 border-b border-white/10"
-        role="navigation" aria-label="Navigation principale"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+      <SectionProcess />
 
-            {/* Logo */}
-            <motion.button onClick={() => scrollToSection('accueil')}
-              className="flex items-center gap-3" whileHover={{ scale: 1.05 }} aria-label="Retour accueil">
-              <div className="relative w-12 h-12">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-teal-400 rounded-xl blur-lg opacity-70" />
-                <div className="relative w-full h-full bg-gradient-to-br from-blue-600 to-teal-500 rounded-xl flex items-center justify-center">
-                  <Code2 className="w-6 h-6 text-white" />
-                </div>
-              </div>
-              <span className="font-bold text-2xl" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                <GradientText>Tché.dev</GradientText>
-              </span>
-            </motion.button>
+      {/* ✅ Avis clients depuis Firestore — mis à jour depuis /admin → Avis Clients */}
+      <SectionAvis reviews={reviews} />
 
-            {/* Desktop nav */}
-            <div className="hidden md:flex items-center gap-8">
-              {navItems.map((item, i) => (
-                <motion.button key={item.id} onClick={() => scrollToSection(item.id)}
-                  className="text-gray-300 hover:text-white transition-colors relative group"
-                  whileHover={{ scale: 1.05 }}
-                  initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-                  {item.label}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-teal-400 group-hover:w-full transition-all duration-300" />
-                </motion.button>
-              ))}
-              <motion.button onClick={() => scrollToSection('contact')}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-teal-500 rounded-lg hover:shadow-lg hover:shadow-teal-500/50 transition-all relative overflow-hidden group"
-                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: navItems.length * 0.1 }}>
-                <span className="relative z-10">Contact</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </motion.button>
-            </div>
-
-            {/* Hamburger mobile */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
-              aria-label={mobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-              aria-expanded={mobileMenuOpen}
-              aria-controls="mobile-menu"
-            >
-              <motion.div animate={{ rotate: mobileMenuOpen ? 90 : 0 }} transition={{ duration: 0.2 }}>
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </motion.div>
-            </button>
-          </div>
-
-          {/* Menu mobile */}
-          <motion.div
-            id="mobile-menu"
-            initial={false}
-            animate={mobileMenuOpen ? { opacity: 1, height: 'auto' } : { opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="md:hidden overflow-hidden"
-          >
-            <div className="flex flex-col gap-1 py-4 border-t border-white/10">
-              {[...navItems, { id: 'contact', label: 'Contact' }].map((item) => (
-                <button key={item.id} onClick={() => scrollToSection(item.id)}
-                  className="text-gray-300 hover:text-white hover:bg-white/5 transition-all text-left px-4 py-3 rounded-lg">
-                  {item.label}
-                </button>
-              ))}
-              <a href={WA_LINK} target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)}
-                className="mt-2 mx-4 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-green-600 to-green-500 rounded-xl font-semibold text-white">
-                <MessageCircle className="w-5 h-5" /> WhatsApp
-              </a>
-            </div>
-          </motion.div>
-        </div>
-      </motion.nav>
-
-      {/* ================================================
-          HERO
-          ================================================ */}
-      <section id="accueil" className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
-        <ParticleBackground />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm rounded-full border border-white/10">
-                <Sparkles className="w-4 h-4 text-teal-400" />
-                <span className="text-sm text-gray-300">Développeur Full-Stack & Ingénieur IA — Abidjan 🇨🇮</span>
-              </motion.div>
-
-              <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-5xl sm:text-6xl lg:text-7xl font-black leading-tight"
-                style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                Je construis des <GradientText>produits digitaux</GradientText> qui font la différence.
-              </motion.h1>
-
-              <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }}
-                className="text-xl text-gray-300 leading-relaxed">
-                Développeur Full-Stack & Ingénieur IA basé à{' '}
-                <span className="text-teal-400 font-semibold">Abidjan, Côte d'Ivoire</span>.
-                Fondateur de <span className="text-blue-400 font-semibold">Brumerie</span> — la marketplace sociale mobile de l'économie informelle africaine.
-                Je construis des applications web et mobile de A à Z, et j'intègre l'IA pour automatiser, innover et scaler.
-              </motion.p>
-
-              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.6 }}
-                className="flex flex-col sm:flex-row gap-4">
-                <motion.button onClick={() => scrollToSection('contact')}
-                  className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-teal-500 rounded-xl font-semibold shadow-xl shadow-teal-500/30 hover:shadow-2xl hover:shadow-teal-500/50 transition-all relative overflow-hidden"
-                  whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }}>
-                  <span className="relative z-10 flex items-center gap-2">
-                    📅 Travaillons ensemble
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </motion.button>
-                <motion.a href={WA_LINK} target="_blank" rel="noopener noreferrer"
-                  className="group px-8 py-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl font-semibold hover:bg-white/10 transition-all"
-                  whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }}>
-                  <span className="flex items-center gap-2">
-                    💬 WhatsApp
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                </motion.a>
-              </motion.div>
-
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
-                className="flex items-center gap-8 pt-8">
-                <div className="flex -space-x-3" aria-hidden="true">
-                  {[...Array(4)].map((_, i) => (
-                    <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-teal-400 border-2 border-slate-950" />
-                  ))}
-                </div>
-                <div>
-                  <div className="flex items-center gap-1" aria-label="5 étoiles sur 5">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />)}
-                  </div>
-                  <p className="text-sm text-gray-400 mt-1">30+ clients satisfaits</p>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* ── Photo PDG — visible mobile ET desktop ── */}
-            <motion.div initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, delay: 0.3 }}
-              className="flex flex-col items-center gap-8 order-first lg:order-last">
-
-              {/* Carte photo carrée */}
-              <div className="relative w-64 sm:w-80 lg:w-full lg:max-w-sm mx-auto">
-                {/* Halo dégradé animé */}
-                <div className="absolute -inset-6 bg-gradient-to-br from-blue-500/40 to-teal-400/40 rounded-3xl blur-2xl animate-pulse" />
-
-                {/* Cadre dégradé bleu→teal */}
-                <div className="relative rounded-3xl p-[3px] bg-gradient-to-br from-blue-500 via-teal-400 to-blue-600 shadow-2xl shadow-teal-500/40">
-                  <div className="rounded-[22px] overflow-hidden bg-slate-900 aspect-square">
-
-                    {/* ──────────────────────────────────────────────
-                        TA PHOTO : place pdg-photo.webp dans public/images/
-                        Depuis le Dashboard Admin → Paramètres → URL photo
-                        Ou simplement : public/images/pdg-photo.webp
-                        ────────────────────────────────────────────── */}
-                    <PhotoPDG />
-
-                  </div>
-                </div>
-
-                {/* Badge PDG flottant en bas */}
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.9 }}
-                  className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap
-                              px-4 py-2 bg-slate-900/95 backdrop-blur-sm border border-teal-500/50
-                              rounded-full text-xs sm:text-sm font-semibold shadow-xl">
-                  <span className="text-teal-400">⚡</span>{' '}
-                  <GradientText>Full-Stack & IA — Fondateur Brumerie</GradientText>
-                </motion.div>
-
-                {/* Badge localisation */}
-                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1.1 }}
-                  className="absolute -top-3 -right-3 px-3 py-1.5 bg-slate-900/95 backdrop-blur-sm
-                              border border-white/10 rounded-full text-xs font-medium text-gray-300 shadow-lg">
-                  📍 Abidjan, CI
-                </motion.div>
-
-                {/* Badge disponibilité */}
-                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1.2 }}
-                  className="absolute -top-3 -left-3 px-3 py-1.5 bg-green-900/90 backdrop-blur-sm
-                              border border-green-500/40 rounded-full text-xs font-medium text-green-300 shadow-lg">
-                  🟢 Disponible
-                </motion.div>
-              </div>
-
-              {/* Mini stats sous la photo */}
-              <div className="grid grid-cols-4 gap-2 sm:gap-3 w-64 sm:w-80 lg:w-full lg:max-w-sm mt-4">
-                {[
-                  { icon: Zap,        value: 50,  suffix: '+', label: 'Projets',  gradient: 'from-blue-600 to-blue-700',  r: 2  },
-                  { icon: TrendingUp, value: 100, suffix: '%', label: '✓ Satisf', gradient: 'from-teal-600 to-teal-700',  r: -2 },
-                  { icon: Shield,     value: 5,   suffix: '+', label: 'Années',   gradient: 'from-cyan-600 to-cyan-700',  r: -2 },
-                  { icon: Users,      value: 30,  suffix: '+', label: 'Clients',  gradient: 'from-blue-500 to-teal-500',  r: 2  },
-                ].map(({ icon: Icon, value, suffix, label, gradient, r }) => (
-                  <motion.div key={label}
-                    className={`bg-gradient-to-br ${gradient} rounded-2xl p-2 sm:p-3 flex flex-col items-center justify-center text-center`}
-                    whileHover={{ scale: 1.08, rotate: r }}>
-                    <Icon className="w-4 h-4 mb-1" />
-                    <div className="text-base sm:text-lg font-black"><AnimatedCounter value={value} suffix={suffix} /></div>
-                    <div className="text-xs text-white/70 leading-tight">{label}</div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </div>
-
-        {/* Indicateur scroll */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2" aria-hidden="true">
-          <motion.div animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}
-            className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center p-2">
-            <motion.div className="w-1 h-2 bg-white/50 rounded-full" />
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* ================================================
-          À PROPOS
-          ================================================ */}
-      <section id="a-propos" className="relative py-32 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <SectionHeader title={<>À <GradientText>Propos</GradientText></>} />
-
-          <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
-            <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }} transition={{ duration: 0.8 }}
-              className="space-y-6 text-lg text-gray-300 leading-relaxed">
-              <p>
-                Je suis <span className="text-white font-semibold">Doukoua Tché Serge Alain</span>,
-                développeur Full-Stack & Ingénieur IA, connu sous le nom de <GradientText>Tché</GradientText>.
-                Basé à Abidjan, je conçois des applications web et mobile de bout en bout — du design à la mise en production.
-                Mon terrain de jeu : React, TypeScript, Firebase, Node.js, et l'IA générative.
-              </p>
-              <p>
-                Je suis le fondateur de <span className="text-blue-400 font-semibold">Brumerie</span> — une marketplace sociale mobile pour l'économie informelle d'Abidjan,
-                incubée par FasterCapital. En parallèle, j'accompagne des startups, PME et entrepreneurs
-                africains qui veulent construire des produits digitaux solides, rapides et adaptés à leur marché.
-              </p>
-              <div className="p-6 bg-gradient-to-r from-blue-600/20 to-teal-600/20 backdrop-blur-sm rounded-2xl border border-white/10">
-                <p className="text-xl font-bold text-white">
-                  Je code depuis Abidjan. <GradientText>Je build pour l'Afrique et au-delà.</GradientText>
-                </p>
-              </div>
-            </motion.div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { title: 'Excellence', desc: 'Chaque ligne de code, chaque stratégie IA est pensée pour dépasser vos attentes.', icon: Target },
-                { title: 'Contexte local', desc: 'Basé à Abidjan, je code des solutions taillées pour les réalités africaines : mobile money, faible bande passante, offline-first.', icon: Users },
-                { title: 'Innovation', desc: "L'IA n'est pas un buzzword. C'est un levier concret pour votre productivité.", icon: Rocket },
-                { title: 'Livraison', desc: 'Code propre, testé, documenté. Délais respectés, communication sans filtre.', icon: Shield },
-              ].map((v, i) => (
-                <FloatingCard key={v.title} delay={i * 0.1}>
-                  <div className="group p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-all hover:border-teal-500/50 h-full">
-                    <v.icon className="w-8 h-8 text-teal-400 mb-4 group-hover:scale-110 transition-transform" />
-                    <h3 className="text-xl font-bold mb-2">{v.title}</h3>
-                    <p className="text-sm text-gray-400">{v.desc}</p>
-                  </div>
-                </FloatingCard>
-              ))}
-            </div>
-          </div>
-
-          {/* Statistiques */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { value: 50, suffix: '+', label: 'Projets livrés' },
-              { value: 30, suffix: '+', label: 'Clients & startups' },
-              { value: 5, suffix: '+', label: "Années de code" },
-              { value: 100, suffix: '%', label: 'Clients satisfaits' },
-            ].map((s, i) => (
-              <FloatingCard key={s.label} delay={i * 0.1}>
-                <div className="text-center p-8 bg-gradient-to-br from-blue-600/10 to-teal-600/10 backdrop-blur-sm rounded-2xl border border-white/10">
-                  <div className="text-5xl font-black mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400">
-                    <AnimatedCounter value={s.value} suffix={s.suffix} />
-                  </div>
-                  <div className="text-gray-400">{s.label}</div>
-                </div>
-              </FloatingCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================
-          SERVICES
-          ================================================ */}
-      <section id="services" className="relative py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-950/20 to-transparent" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <SectionHeader title={<GradientText>Services</GradientText>}
-            subtitle="Ce que je maîtrise et ce que je peux construire pour vous" />
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { icon: Monitor, title: 'Développement Web Full-Stack', gradient: 'from-blue-600 to-blue-700',
-                desc: "React, Next.js, TypeScript, Node.js, Firebase. Je construis des applications web de A à Z — du design au déploiement Vercel. Mobile-first, performantes, SEO-ready." },
-              { icon: BrainCircuit, title: 'Intégration IA & Automatisation', gradient: 'from-teal-600 to-teal-700',
-                desc: "APIs Claude / GPT-4, agents autonomes, pipelines d'automatisation, chatbots sur mesure. J'ai construit Agent Ultra — un agent IA autonome multi-modèles tournant sur Android." },
-              { icon: GraduationCap, title: 'Apps Mobile (React Native)', gradient: 'from-cyan-600 to-cyan-700',
-                desc: "Applications Android & iOS avec React Native + EAS Build. Paiement mobile money intégré (Wave, Orange Money, MTN MoMo). Offline-first pour le marché africain." },
-              { icon: Wrench, title: 'Architecture & DevOps', gradient: 'from-blue-500 to-teal-500',
-                desc: "Firebase, Supabase, Vercel, GitHub Actions. Je conçois des architectures scalables et des pipelines CI/CD pour que votre produit soit toujours disponible et à jour." },
-              { icon: Lightbulb, title: 'CTO Freelance & Conseil Produit', gradient: 'from-purple-600 to-blue-600',
-                desc: "Audit technique, choix de stack, roadmap produit, code review. Je deviens votre CTO à temps partiel pour les startups qui veulent aller vite sans se tromper de direction." },
-            ].map((s, i) => (
-              <FloatingCard key={s.title} delay={i * 0.1}>
-                <div className="group h-full relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-teal-500/50 transition-all">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${s.gradient} opacity-0 group-hover:opacity-10 transition-opacity`} />
-                  <div className="relative p-8 h-full flex flex-col">
-                    <div className={`w-16 h-16 bg-gradient-to-br ${s.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform shadow-lg`}>
-                      <s.icon className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold mb-4 group-hover:text-teal-400 transition-colors">{s.title}</h3>
-                    <p className="text-gray-400 leading-relaxed flex-grow">{s.desc}</p>
-                    <motion.div className="mt-6 flex items-center gap-2 text-teal-400 font-semibold" whileHover={{ x: 5 }}>
-                      En savoir plus <ArrowRight className="w-5 h-5" />
-                    </motion.div>
-                  </div>
-                </div>
-              </FloatingCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================
-          PORTFOLIO
-          ================================================ */}
-      <section id="portfolio" className="relative py-32 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <SectionHeader title={<GradientText>Portfolio</GradientText>}
-            subtitle="Projets récents — de l'idée au déploiement en production" />
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {[
-              { category: 'Mode & Retail', title: 'E-commerce Mode Africaine — « AfroChic CI »',
-                desc: "Boutique en ligne complète avec paiement mobile money, gestion des stocks et chatbot IA pour le service client.",
-                result: '+300% de ventes en 6 mois, panier moyen augmenté de 25%',
-                tech: 'React, Node.js, MongoDB, ChatGPT API',
-                gradient: 'from-pink-500 to-purple-600',
-                catColor: 'bg-pink-500/20 text-pink-300 border-pink-500/30' },
-              { category: 'Immobilier', title: 'Site Vitrine Immobilier — « ImmoCocody »',
-                desc: "Site vitrine premium avec carte interactive, fiches biens dynamiques et formulaire de contact optimisé.",
-                result: '+150 leads qualifiés/mois, page 1 Google sur « agence immobilière Cocody »',
-                tech: 'Next.js, Tailwind CSS, Google Maps API',
-                gradient: 'from-blue-500 to-cyan-600',
-                catColor: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
-              { category: 'RH / SaaS', title: 'Application Web RH — « GestPaie CI »',
-                desc: "Application de gestion de paie et présences pour PME ivoiriennes avec tableau de bord analytique.",
-                result: '12 PME abonnées en 3 mois, temps de traitement paie ÷3',
-                tech: 'Laravel, Vue.js, MySQL, Chart.js',
-                gradient: 'from-green-500 to-emerald-600',
-                catColor: 'bg-green-500/20 text-green-300 border-green-500/30' },
-              { category: 'Banque / Finance', title: "Formation IA Corporate — « Banque Régionale de l'Ouest »",
-                desc: "Formation de 45 collaborateurs à l'IA générative (ChatGPT, Copilot) pour l'automatisation des rapports.",
-                result: '2h/jour gagnées par collaborateur, adoption à 90% des outils',
-                tech: 'Ateliers pratiques, templates personnalisés, accompagnement post-formation',
-                gradient: 'from-orange-500 to-red-600',
-                catColor: 'bg-orange-500/20 text-orange-300 border-orange-500/30' },
-            ].map((p, i) => (
-              <FloatingCard key={p.title} delay={i * 0.1}>
-                <div className="group h-full bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/10 hover:border-teal-500/50 transition-all">
-                  {/* Vignette de projet avec lazy-loading */}
-                  <div className={`relative aspect-video bg-gradient-to-br ${p.gradient} overflow-hidden`}>
-                    <div className="absolute inset-0 bg-black/20" />
-                    <motion.div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"
-                      initial={{ opacity: 0.6 }} whileHover={{ opacity: 0.3 }} />
-                    {/* Image lazy (placeholder — remplacer src par screenshot réel) */}
-                    <img
-                      src={`/images/portfolio-${i + 1}.webp`}
-                      alt={`Projet ${p.category}`}
-                      loading="lazy"
-                      decoding="async"
-                      className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay"
-                    />
-                    <div className="absolute top-4 left-4">
-                      <span className={`px-3 py-1 ${p.catColor} backdrop-blur-sm rounded-full text-sm border`}>
-                        {p.category}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-8">
-                    <h3 className="text-2xl font-bold mb-4 group-hover:text-teal-400 transition-colors">{p.title}</h3>
-                    <p className="text-gray-400 mb-6 leading-relaxed">{p.desc}</p>
-                    <div className="space-y-3 mb-6">
-                      <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                        <p className="text-sm text-green-300"><strong className="text-green-200">Résultat : </strong>{p.result}</p>
-                      </div>
-                      <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                        <p className="text-sm text-blue-300"><strong className="text-blue-200">Technologies : </strong>{p.tech}</p>
-                      </div>
-                    </div>
-                    <motion.div className="flex items-center gap-2 text-teal-400 font-semibold" whileHover={{ x: 5 }}>
-                      Voir le projet <ArrowRight className="w-5 h-5" />
-                    </motion.div>
-                  </div>
-                </div>
-              </FloatingCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================
-          TÉMOIGNAGES
-          ================================================ */}
-      <section id="temoignages" className="relative py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-teal-950/20 to-transparent" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <SectionHeader title={<GradientText>Témoignages</GradientText>}
-            subtitle="Ce que mes clients disent de leur expérience" />
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { text: "Serge Alain a transformé notre présence en ligne. Notre site e-commerce génère maintenant des ventes tous les jours. Son approche est professionnelle, il comprend vraiment le marché ivoirien.",
-                author: 'Kouamé A.', role: 'CEO, Startup Fintech · Abidjan' },
-              { text: "La formation IA qu'il a animée pour notre équipe a été un tournant. Nos commerciaux utilisent ChatGPT quotidiennement pour rédiger des propositions. Rentabilisé en 2 semaines.",
-                author: 'Diallo M.', role: 'CTO, AgriTech · Dakar' },
-              { text: 'Rapide, réactif, et toujours disponible sur WhatsApp. Ma maintenance web est entre de bonnes mains depuis 2 ans. Je recommande les yeux fermés.',
-                author: 'Traoré S.', role: 'Fondatrice, EdTech · Abidjan' },
-            ].map((t, i) => (
-              <FloatingCard key={t.author} delay={i * 0.1}>
-                <div className="h-full p-8 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 hover:border-teal-500/50 transition-all flex flex-col">
-                  <div className="flex gap-1 mb-6" aria-label="5 étoiles sur 5">
-                    {[...Array(5)].map((_, si) => (
-                      <motion.div key={si} initial={{ opacity: 0, scale: 0 }} whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }} transition={{ delay: 0.1 * si }}>
-                        <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                      </motion.div>
-                    ))}
-                  </div>
-                  <p className="text-gray-300 leading-relaxed mb-8 italic flex-grow">« {t.text} »</p>
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-teal-400 rounded-full flex-shrink-0" aria-hidden="true" />
-                    <div>
-                      <p className="font-bold text-white">{t.author}</p>
-                      <p className="text-sm text-gray-400">{t.role}</p>
-                    </div>
-                  </div>
-                </div>
-              </FloatingCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================
-          FAQ
-          ================================================ */}
-      <section className="relative py-32 overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <SectionHeader title={<GradientText>FAQ</GradientText>}
-            subtitle="Les réponses à vos questions les plus fréquentes" />
-
-          <div className="space-y-4">
-            {[
-              { q: "Quels sont vos tarifs pour un projet web ou mobile ?",
-                a: "Ça dépend du scope. Un site vitrine simple démarre à 250 000 FCFA. Une app mobile ou web complexe peut aller de 800 000 FCFA à plusieurs millions. Je vous établis un devis détaillé après un premier échange gratuit de 30 minutes." },
-              { q: 'Combien de temps faut-il pour créer un site web ?',
-                a: "Un site vitrine : 2 à 4 semaines. Une application web ou mobile complète : 6 à 14 semaines selon la complexité. Je travaille en sprints avec des livrables réguliers pour que vous voyiez la progression." },
-              { q: 'Comment se déroule une collaboration avec vous ?',
-                a: "En 4 phases : (1) Découverte & specs — 30 min gratuits pour cadrer le projet. (2) Devis & planning — livré sous 48h. (3) Développement en sprints — démos régulières sur une URL de preview. (4) Livraison & transfert — code source, docs, et formation à la prise en main." },
-              { q: "Pouvez-vous travailler sur un projet déjà commencé (reprise de code) ?",
-                a: "Oui, c'est même fréquent. Je commence par un audit de l'existant (2-4h), je vous donne un rapport honnête sur la qualité du code, et on décide ensemble de la meilleure approche : refacto partielle, réécriture ciblée, ou continuation." },
-              { q: "Travaillez-vous avec des entreprises en dehors d'Abidjan ?",
-                a: "Oui ! Je travaille avec des clients en Côte d'Ivoire, au Sénégal, en France et ailleurs. Tout se fait à distance via Notion, Figma, GitHub et WhatsApp. La distance n'est jamais un obstacle." },
-            ].map((faq, i) => (
-              <FloatingCard key={i} delay={i * 0.05}>
-                <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden hover:border-teal-500/50 transition-all">
-                  <button
-                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="w-full px-8 py-6 text-left flex justify-between items-center hover:bg-white/5 transition-colors group"
-                    aria-expanded={openFaq === i}>
-                    <span className="font-semibold text-lg text-white pr-8 group-hover:text-teal-400 transition-colors">{faq.q}</span>
-                    <motion.div animate={{ rotate: openFaq === i ? 180 : 0 }} transition={{ duration: 0.3 }} aria-hidden="true">
-                      <ChevronDown className="w-6 h-6 text-teal-400 flex-shrink-0" />
-                    </motion.div>
-                  </button>
-                  <motion.div initial={false}
-                    animate={{ height: openFaq === i ? 'auto' : 0, opacity: openFaq === i ? 1 : 0 }}
-                    transition={{ duration: 0.3 }} className="overflow-hidden">
-                    <div className="px-8 pb-6 text-gray-400 leading-relaxed">{faq.a}</div>
-                  </motion.div>
-                </div>
-              </FloatingCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================
-          CONTACT
-          ================================================ */}
-      <section id="contact" className="relative py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-teal-900/20 to-cyan-900/20" />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }} transition={{ duration: 0.7 }} className="text-center mb-12">
-            <h2 className="text-5xl sm:text-6xl font-black mb-6" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-              <GradientText>Contact</GradientText>
-            </h2>
-            <p className="text-2xl text-gray-300 mb-6">Un projet en tête ? Parlons-en.</p>
-            <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-              Que ce soit pour construire une app de zéro, intégrer de l'IA dans votre produit,
-              ou avoir un regard expert sur votre architecture — je réponds sous 24h.
-            </p>
-          </motion.div>
-
-          {/* CTA WhatsApp */}
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }} transition={{ duration: 0.7 }}
-            className="bg-gradient-to-br from-blue-600/20 to-teal-600/20 backdrop-blur-sm rounded-3xl p-10 mb-10 border border-white/10 text-center">
-            <h3 className="text-3xl font-bold mb-4" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-              📱 Écrivez-moi directement sur WhatsApp
-            </h3>
-            <p className="text-gray-300 mb-8 text-lg">C'est le moyen le plus rapide pour obtenir une réponse sous 24h.</p>
-            <motion.a href={WA_LINK} target="_blank" rel="noopener noreferrer"
-              className="group inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-green-600 to-green-500 rounded-2xl font-bold text-lg shadow-2xl shadow-green-500/30 hover:shadow-green-500/50 transition-all"
-              whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.95 }}>
-              <MessageCircle className="w-6 h-6" />
-              💬 Me contacter sur WhatsApp
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </motion.a>
-          </motion.div>
-
-          {/* Formulaire */}
-          <ContactForm />
-
-          {/* Infos contact */}
-          <div className="grid md:grid-cols-3 gap-6 mt-10">
-            {[
-              { icon: Mail, label: 'Email', value: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
-              { icon: MapPin, label: 'Adresse', value: "Abidjan, Côte d'Ivoire", href: undefined },
-              { icon: Clock, label: 'Disponibilité', value: 'Lun – Ven, 8h – 18h (GMT)', href: undefined },
-            ].map((c, i) => (
-              <FloatingCard key={c.label} delay={i * 0.1}>
-                <div className="text-center p-8 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 hover:border-teal-500/50 transition-all">
-                  <c.icon className="w-8 h-8 mx-auto mb-4 text-teal-400" />
-                  <p className="font-semibold text-lg mb-2">{c.label}</p>
-                  {c.href
-                    ? <a href={c.href} className="text-gray-400 hover:text-teal-400 transition-colors">{c.value}</a>
-                    : <p className="text-gray-400">{c.value}</p>}
-                </div>
-              </FloatingCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================
-          FOOTER
-          ================================================ */}
-      <footer className="relative border-t border-white/10 py-12" role="contentinfo">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-teal-500 rounded-xl flex items-center justify-center">
-                  <Code2 className="w-6 h-6" />
-                </div>
-                <span className="font-bold text-2xl" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                  <GradientText>Brumerie</GradientText>
-                </span>
-              </div>
-              <p className="text-gray-400 italic mb-4">« Digitaliser l'Afrique, un projet à la fois. »</p>
-              <div className="flex gap-3">
-                {[
-                  { Icon: Linkedin, label: 'LinkedIn' }, { Icon: Twitter, label: 'Twitter' },
-                  { Icon: Instagram, label: 'Instagram' }, { Icon: Github, label: 'GitHub' },
-                ].map(({ Icon, label }) => (
-                  <motion.a key={label} href="#" aria-label={label} target="_blank" rel="noopener noreferrer"
-                    className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center hover:bg-gradient-to-br hover:from-blue-600 hover:to-teal-500 transition-all border border-white/10"
-                    whileHover={{ scale: 1.1, rotate: 5 }}>
-                    <Icon className="w-5 h-5" />
-                  </motion.a>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4 text-lg">Navigation</h4>
-              <nav className="space-y-3 text-gray-400" aria-label="Navigation footer">
-                {navItems.map((item) => (
-                  <button key={item.id} onClick={() => scrollToSection(item.id)}
-                    className="block hover:text-teal-400 transition-colors">{item.label}</button>
-                ))}
-              </nav>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4 text-lg">Liens utiles</h4>
-              <div className="space-y-3 text-gray-400">
-                <button onClick={() => scrollToSection('temoignages')} className="block hover:text-teal-400 transition-colors">Témoignages</button>
-                <button onClick={() => scrollToSection('contact')} className="block hover:text-teal-400 transition-colors">Contact</button>
-                <a href="#" className="block hover:text-teal-400 transition-colors">Mentions légales</a>
-                <a href="#" className="block hover:text-teal-400 transition-colors">Politique de confidentialité</a>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4 text-lg">WhatsApp direct</h4>
-              <p className="text-gray-400 mb-4">Réponse rapide pour vos projets urgents.</p>
-              <a href={WA_LINK} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-green-400 hover:text-green-300 transition-colors font-medium">
-                <MessageCircle className="w-5 h-5" /> +225 05 86 86 76 93
-              </a>
-            </div>
-          </div>
-
-          <div className="border-t border-white/10 pt-8 text-center text-gray-400">
-            <p className="mb-2">© {new Date().getFullYear()} Doukoua Tché Serge Alain — dev.brumerie.com. Tous droits réservés.</p>
-            <p>Conçu avec ❤️ à Abidjan, Côte d'Ivoire.</p>
-          </div>
-        </div>
-      </footer>
-
-      {/* ================================================
-          BOUTON WHATSAPP FLOTTANT
-          ================================================ */}
-      <motion.a
-        href={WA_LINK}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Contacter Tché sur WhatsApp"
-        className="fixed bottom-8 right-8 z-50 group"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 1, type: 'spring', stiffness: 200, damping: 15 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-      >
-        <div className="relative">
-          {/* Anneau ping */}
-          <div className="absolute -inset-2 rounded-full border-2 border-green-400/40 animate-ping" aria-hidden="true" />
-          {/* Halo flou */}
-          <div className="absolute inset-0 bg-green-500 rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-opacity" aria-hidden="true" />
-          {/* Bouton */}
-          <div className="relative w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-2xl shadow-green-500/50">
-            <MessageCircle className="w-8 h-8 text-white" />
-          </div>
-        </div>
-      </motion.a>
+      <SectionFAQ />
+      <SectionCTAFinal />
+      <SectionContact />
+      <Footer />
+      <FloatingWA />
     </div>
   );
 }
