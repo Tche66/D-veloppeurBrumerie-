@@ -154,8 +154,15 @@ function Nav() {
   ];
 
   const scroll = (href: string) => {
-    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setOpen(false);
+    // Délai court pour laisser le menu se fermer avant le scroll (mobile)
+    setTimeout(() => {
+      const el = document.querySelector(href);
+      if (!el) return;
+      // Compenser la hauteur de la nav fixe (64px) + marge
+      const top = el.getBoundingClientRect().top + window.scrollY - 72;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    }, 100);
   };
 
   return (
@@ -194,7 +201,7 @@ function Nav() {
             <div className="px-5 py-4 space-y-1">
               {links.map(l => (
                 <button key={l.href} onClick={() => scroll(l.href)}
-                  className="w-full text-left py-3 px-4 text-white/70 hover:text-white hover:bg-white/5 rounded-xl text-sm font-medium transition-all">
+                  className="w-full text-left py-4 px-5 text-white/80 hover:text-white active:bg-white/10 hover:bg-white/5 rounded-2xl text-base font-semibold transition-all border border-transparent hover:border-white/10">
                   {l.label}
                 </button>
               ))}
@@ -290,7 +297,7 @@ function Hero() {
                 <ArrowRight className="w-5 h-5" />
               </BtnWA>
               <button
-                onClick={() => document.getElementById('offres')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => (() => { const el = document.getElementById('offres'); if(el){ window.scrollTo({top: el.getBoundingClientRect().top + window.scrollY - 72, behavior:'smooth'}); } })()}
                 className="flex items-center gap-2 text-white/50 hover:text-white text-sm font-medium transition-colors"
               >
                 Voir les offres <ChevronDown className="w-4 h-4" />
