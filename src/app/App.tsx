@@ -393,7 +393,7 @@ function SectionProbleme() {
   const problems = [
     { icon: '😤', text: 'Vous avez une idée mais aucun développeur fiable à Abidjan ?' },
     { icon: '⏳', text: 'Vous perdez des clients à cause de processus 100% manuels ?' },
-    { icon: '💸', text: 'Vous avez payé cher une app qui n\'a jamais été livrée ?' },
+    { icon: "💸", text: "Vous avez payé cher une app qui n'a jamais été livrée ?" },
     { icon: '🔒', text: 'Vous voulez automatiser mais vous êtes bloqué par la technique ?' },
   ];
 
@@ -500,21 +500,21 @@ const DEFAULT_BLOG: BlogPost[] = [
     id: 'd1', title: "Comment j'ai lancé Brumerie depuis mon téléphone Android",
     excerpt: "Tout le stack React + Firebase + Capacitor configuré depuis Termux sur Android. Voici comment j'ai construit une marketplace mobile sans ordinateur.",
     content: '', category: 'Développement Web',
-    tags: 'React, Firebase, Android, Termux', date: '2026-04-20',
+    tags: "React, Firebase, Android, Termux", date: '2026-04-20',
     published: true, coverEmoji: '📱',
   },
   {
     id: 'd2', title: "5 façons concrètes d'intégrer l'IA dans votre PME ivoirienne",
     excerpt: "L'IA n'est plus réservée aux grandes entreprises. Voici 5 cas d'usage immédiatement applicables pour les entrepreneurs en Côte d'Ivoire.",
     content: '', category: 'Intelligence Artificielle',
-    tags: 'IA, PME, Côte d'Ivoire, ChatGPT', date: '2026-04-10',
+    tags: "IA, PME, Côte d'Ivoire, ChatGPT", date: '2026-04-10',
     published: true, coverEmoji: '🤖',
   },
   {
     id: 'd3', title: "Wave vs Orange Money vs MTN MoMo : lequel intégrer en priorité ?",
     excerpt: "Comparatif complet des APIs de paiement mobile money en Côte d'Ivoire. Frais, intégration, documentation — tout ce que vous devez savoir.",
     content: '', category: 'Business',
-    tags: 'Wave, Orange Money, paiement, API', date: '2026-03-28',
+    tags: "Wave, Orange Money, paiement, API", date: '2026-03-28',
     published: true, coverEmoji: '💳',
   },
 ];
@@ -796,7 +796,7 @@ function SectionProjets({ projets: firestoreProjets }: { projets?: Project[] }) 
       result: 'MVP validé · 10+ commandes réelles · Live sur Vercel',
       metric: '+10 commandes dès le MVP',
       tech: 'React · Firebase · Capacitor · Wave API',
-      desc: 'Marketplace mobile-first pour l\'économie informelle d\'Abidjan. Paiement mobile money, chat intégré, stories vendeurs. Incubé par FasterCapital.',
+      desc: "Marketplace mobile-first pour l'économie informelle d'Abidjan. Paiement mobile money, chat intégré, stories vendeurs. Incubé par FasterCapital.",
       color: '#25D366',
     },
     {
@@ -907,7 +907,7 @@ function SectionProcess() {
       num: '01',
       icon: '💬',
       title: 'Brief WhatsApp (30 min)',
-      desc: 'Vous m\'écrivez. On discute de votre idée, vos objectifs, votre budget. Pas de formulaire complexe. Juste une vraie conversation.',
+      desc: "Vous m'écrivez. On discute de votre idée, vos objectifs, votre budget. Pas de formulaire complexe. Juste une vraie conversation.",
       color: '#0ff',
     },
     {
@@ -928,7 +928,7 @@ function SectionProcess() {
       num: '04',
       icon: '🚀',
       title: 'Livraison & mise en ligne',
-      desc: 'Livraison en 7 jours. Je gère l\'hébergement, le domaine, les tests. Vous recevez un produit 100% fonctionnel, prêt à l\'emploi.',
+      desc: "Livraison en 7 jours. Je gère l'hébergement, le domaine, les tests. Vous recevez un produit 100% fonctionnel, prêt à l'emploi.",
       color: '#f59e0b',
     },
   ];
