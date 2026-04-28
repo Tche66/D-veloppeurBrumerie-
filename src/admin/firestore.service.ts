@@ -87,8 +87,9 @@ export async function deleteService(id: string): Promise<void> {
    PORTFOLIO (projets)
    ============================================================ */
 export interface Project {
-  id:       string;
-  category: string;
+  id:        string;
+  coverImage?: string;  // URL image : /images/projets/mon-projet.webp
+  category:  string;
   title:    string;
   desc:     string;
   result:   string;
@@ -123,6 +124,7 @@ export async function deleteProject(id: string): Promise<void> {
    ============================================================ */
 export interface BlogPost {
   id:          string;
+  coverImage?: string;  // URL image : /images/blog/mon-article.webp
   title:       string;
   excerpt:     string;
   content:     string;
@@ -156,8 +158,9 @@ export async function deleteBlogPost(id: string): Promise<void> {
    AVIS CLIENTS
    ============================================================ */
 export interface Review {
-  id:      string;
-  author:  string;
+  id:       string;
+  avatar?:  string;     // URL avatar : /images/avis/client.webp
+  author:   string;
   role:    string;
   company: string;
   text:    string;

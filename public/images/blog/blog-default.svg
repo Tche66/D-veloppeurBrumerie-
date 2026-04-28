@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0a0a"/>
+      <stop offset="100%" stop-color="#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="overlay" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="rgba(0,0,0,0)" stop-opacity="0"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.7)" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+  <!-- Fond -->
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <!-- Overlay dégradé bas -->
+  <rect width="800" height="450" fill="url(#overlay)"/>
+  <!-- Grille déco -->
+  <g opacity="0.06">
+    <line x1="0" y1="90" x2="800" y2="90" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="180" x2="800" y2="180" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="270" x2="800" y2="270" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="360" x2="800" y2="360" stroke="white" stroke-width="1"/>
+    <line x1="160" y1="0" x2="160" y2="450" stroke="white" stroke-width="1"/>
+    <line x1="320" y1="0" x2="320" y2="450" stroke="white" stroke-width="1"/>
+    <line x1="480" y1="0" x2="480" y2="450" stroke="white" stroke-width="1"/>
+    <line x1="640" y1="0" x2="640" y2="450" stroke="white" stroke-width="1"/>
+  </g>
+  <!-- Cercle déco -->
+  <circle cx="680" cy="80" r="120" fill="#00ffff" opacity="0.12"/>
+  <circle cx="120" cy="370" r="80" fill="#00ffff" opacity="0.08"/>
+  <!-- Emoji -->
+  <text x="400" y="200" font-size="80" text-anchor="middle" dominant-baseline="middle">📝</text>
+  <!-- Titre -->
+  <text x="400" y="310" font-family="Arial, sans-serif" font-size="28" font-weight="bold"
+    fill="white" text-anchor="middle">Article de Blog</text>
+  <!-- Sous-titre -->
+  <text x="400" y="350" font-family="Arial, sans-serif" font-size="16"
+    fill="#00ffff" text-anchor="middle">tché.dev</text>
+  <!-- Badge coin -->
+  <rect x="24" y="24" width="140" height="36" rx="18" fill="#00ffff" opacity="0.25"/>
+  <text x="94" y="47" font-family="Arial, sans-serif" font-size="13" font-weight="bold"
+    fill="#00ffff" text-anchor="middle">dev.brumerie.com</text>
+</svg>

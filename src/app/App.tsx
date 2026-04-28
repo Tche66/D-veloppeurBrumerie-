@@ -740,14 +740,14 @@ function SectionStats() {
    PROJETS / ÉTUDES DE CAS
    ────────────────────────────────────────────── */
 function SectionProjets({ projets: firestoreProjets }: { projets?: Project[] }) {
-  // Config visuelle locale (emoji, couleur) — maquette de présentation
+  // Config visuelle locale (emoji, couleur, image) — par catégorie
   const visualConfig = [
-    { emoji: '🛒', color: '#25D366' },
-    { emoji: '🤖', color: '#a78bfa' },
-    { emoji: '📄', color: '#f59e0b' },
-    { emoji: '💼', color: '#0ff'    },
-    { emoji: '🚀', color: '#f43f5e' },
-    { emoji: '⚡', color: '#3b82f6' },
+    { emoji: '🛒', color: '#25D366', img: '/images/projets/projet-marketplace.svg' },
+    { emoji: '🤖', color: '#a78bfa', img: '/images/projets/projet-ia.svg'          },
+    { emoji: '📄', color: '#f59e0b', img: '/images/projets/projet-saas.svg'        },
+    { emoji: '💼', color: '#0ff',    img: '/images/projets/projet-web.svg'         },
+    { emoji: '🚀', color: '#f43f5e', img: '/images/projets/projet-mobile.svg'      },
+    { emoji: '⚡', color: '#3b82f6', img: '/images/projets/projet-default.svg'     },
   ];
 
   // Données affichées : Firestore si disponible, fallback hardcodé sinon
@@ -755,6 +755,7 @@ function SectionProjets({ projets: firestoreProjets }: { projets?: Project[] }) 
     ? firestoreProjets.map((p, i) => ({
         emoji:  visualConfig[i % visualConfig.length].emoji,
         color:  visualConfig[i % visualConfig.length].color,
+        img:    p.coverImage || visualConfig[i % visualConfig.length].img,
         tag:    p.category,
         title:  p.title,
         desc:   p.desc,
@@ -813,10 +814,20 @@ function SectionProjets({ projets: firestoreProjets }: { projets?: Project[] }) 
               viewport={{ once: true }} transition={{ duration: 0.6 }}
               className="grid sm:grid-cols-5 gap-0 rounded-3xl overflow-hidden border border-white/8 bg-white/3 hover:bg-white/5 transition-all group"
             >
-              {/* Icône */}
-              <div className="sm:col-span-1 flex items-center justify-center p-8"
+              {/* Image projet */}
+              <div className="sm:col-span-1 relative overflow-hidden min-h-[140px]"
                 style={{ background: `${p.color}10` }}>
-                <span className="text-6xl">{p.emoji}</span>
+                <img
+                  src={p.img || '/images/projets/projet-default.svg'}
+                  alt={p.title}
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                  onError={(e) => { e.currentTarget.src = '/images/projets/projet-default.svg'; }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-5xl drop-shadow-xl relative z-10">{p.emoji}</span>
+                </div>
               </div>
 
               {/* Contenu */}
@@ -997,8 +1008,15 @@ function SectionAvis({ reviews: firestoreReviews }: { reviews?: Review[] }) {
               </div>
               <p className="text-white/70 leading-relaxed text-sm italic flex-1 mb-6">« {a.text} »</p>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0ff]/30 to-violet-500/30 flex items-center justify-center font-black text-sm flex-shrink-0">
-                  {a.name.charAt(0)}
+                <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-white/10">
+                  <img
+                    src={`/images/avis/avatar-${(i % 6) + 1}.svg`}
+                    alt={a.name}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover"
+                    onError={(e) => { e.currentTarget.style.display='none'; }}
+                  />
                 </div>
                 <div>
                   <p className="font-bold text-white text-sm">{a.name}</p>
@@ -1032,8 +1050,44 @@ function SectionAvis({ reviews: firestoreReviews }: { reviews?: Review[] }) {
    SECTION BLOG — Articles depuis Firestore
    Mis à jour depuis /admin → Blog
    ────────────────────────────────────────────── */
+// Images par catégorie pour le blog
+const BLOG_IMAGES: Record<string, string> = {
+  'Intelligence Artificielle': '/images/blog/blog-ia.svg',
+  'Développement Web':         '/images/blog/blog-web.svg',
+  'Business':                  '/images/blog/blog-business.svg',
+  'Formation':                 '/images/blog/blog-formation.svg',
+  'Actualités':                '/images/blog/blog-actu.svg',
+  'Tutoriel':                  '/images/blog/blog-formation.svg',
+};
+
+// Articles par défaut affichés si Firestore vide
+const DEFAULT_BLOG: BlogPost[] = [
+  {
+    id: 'd1', title: "Comment j'ai lancé Brumerie depuis mon téléphone Android",
+    excerpt: "Tout le stack React + Firebase + Capacitor configuré depuis Termux sur Android. Voici comment j'ai construit une marketplace mobile sans ordinateur.",
+    content: '', category: 'Développement Web',
+    tags: 'React, Firebase, Android, Termux', date: '2026-04-20',
+    published: true, coverEmoji: '📱',
+  },
+  {
+    id: 'd2', title: "5 façons concrètes d'intégrer l'IA dans votre PME ivoirienne",
+    excerpt: "L'IA n'est plus réservée aux grandes entreprises. Voici 5 cas d'usage immédiatement applicables pour les entrepreneurs en Côte d'Ivoire.",
+    content: '', category: 'Intelligence Artificielle',
+    tags: 'IA, PME, Côte d'Ivoire, ChatGPT', date: '2026-04-10',
+    published: true, coverEmoji: '🤖',
+  },
+  {
+    id: 'd3', title: "Wave vs Orange Money vs MTN MoMo : lequel intégrer en priorité ?",
+    excerpt: "Comparatif complet des APIs de paiement mobile money en Côte d'Ivoire. Frais, intégration, documentation — tout ce que vous devez savoir.",
+    content: '', category: 'Business',
+    tags: 'Wave, Orange Money, paiement, API', date: '2026-03-28',
+    published: true, coverEmoji: '💳',
+  },
+];
+
 function SectionBlog({ posts }: { posts: BlogPost[] }) {
-  if (posts.length === 0) return null; // N'affiche rien si pas d'articles publiés
+  // Utiliser les articles Firestore si disponibles, sinon les articles par défaut
+  const displayPosts = posts.length > 0 ? posts : DEFAULT_BLOG;
 
   const CATEGORY_COLORS: Record<string, string> = {
     'Intelligence Artificielle': '#0ff',
@@ -1059,7 +1113,7 @@ function SectionBlog({ posts }: { posts: BlogPost[] }) {
 
         {/* Grille d'articles */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {posts.map((post, i) => {
+          {displayPosts.map((post, i) => {
             const catColor = CATEGORY_COLORS[post.category] || '#0ff';
             return (
               <motion.article
@@ -1071,15 +1125,27 @@ function SectionBlog({ posts }: { posts: BlogPost[] }) {
                 className="group flex flex-col bg-white/3 border border-white/8 rounded-3xl overflow-hidden
                   hover:border-[#0ff]/20 hover:bg-white/5 transition-all duration-300 cursor-pointer"
               >
-                {/* Cover emoji + couleur catégorie */}
-                <div className="relative h-36 flex items-center justify-center"
-                  style={{ background: `linear-gradient(135deg, ${catColor}15, ${catColor}05)` }}>
-                  <div className="absolute top-0 left-0 right-0 h-0.5"
-                    style={{ background: `linear-gradient(90deg, transparent, ${catColor}, transparent)` }} />
-                  <span className="text-6xl">{post.coverEmoji}</span>
+                {/* Cover image + overlay */}
+                <div className="relative h-44 overflow-hidden">
+                  {/* Image de couverture — placeholder SVG ou vraie image */}
+                  <img
+                    src={post.coverImage || BLOG_IMAGES[post.category] || '/images/blog/blog-default.svg'}
+                    alt={post.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    onError={(e) => { e.currentTarget.src = '/images/blog/blog-default.svg'; }}
+                  />
+                  {/* Overlay dégradé */}
+                  <div className="absolute inset-0"
+                    style={{ background: `linear-gradient(to top, ${catColor}40, transparent)` }} />
+                  {/* Emoji flottant */}
+                  <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl opacity-80 drop-shadow-lg">
+                    {post.coverEmoji}
+                  </span>
                   {/* Badge catégorie */}
-                  <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1 rounded-full border"
-                    style={{ color: catColor, borderColor: `${catColor}40`, backgroundColor: `${catColor}15` }}>
+                  <span className="absolute top-3 left-3 text-xs font-bold px-3 py-1 rounded-full border backdrop-blur-sm"
+                    style={{ color: catColor, borderColor: `${catColor}40`, backgroundColor: `rgba(4,4,15,0.8)` }}>
                     {post.category}
                   </span>
                 </div>
@@ -1121,7 +1187,7 @@ function SectionBlog({ posts }: { posts: BlogPost[] }) {
         </div>
 
         {/* CTA WhatsApp si peu d'articles */}
-        {posts.length < 3 && (
+        {displayPosts.length < 3 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             className="mt-12 text-center p-6 bg-white/3 border border-white/8 rounded-2xl"

@@ -177,6 +177,96 @@ const BLOG_CATS = ['Intelligence Artificielle','Développement Web','Business','
 /* ============================================================
    ÉCRAN DE CONNEXION — Firebase Auth réel
    ============================================================ */
+/* ============================================================
+   COMPOSANT : Sélecteur d'image avec prévisualisation
+   ============================================================ */
+const BLOG_IMG_OPTIONS = [
+  { label: 'IA & Automatisation',  value: '/images/blog/blog-ia.svg'       },
+  { label: 'Développement Web',    value: '/images/blog/blog-web.svg'       },
+  { label: 'Business',             value: '/images/blog/blog-business.svg'  },
+  { label: 'Formation',            value: '/images/blog/blog-formation.svg' },
+  { label: 'Actualités',           value: '/images/blog/blog-actu.svg'      },
+  { label: 'Défaut Blog',          value: '/images/blog/blog-default.svg'   },
+];
+
+const PROJET_IMG_OPTIONS = [
+  { label: 'Marketplace',    value: '/images/projets/projet-marketplace.svg' },
+  { label: 'Agent IA',       value: '/images/projets/projet-ia.svg'          },
+  { label: 'SaaS / Docs',   value: '/images/projets/projet-saas.svg'        },
+  { label: 'App Web',        value: '/images/projets/projet-web.svg'         },
+  { label: 'App Mobile',     value: '/images/projets/projet-mobile.svg'      },
+  { label: 'Défaut',         value: '/images/projets/projet-default.svg'     },
+];
+
+const AVATAR_OPTIONS = [
+  { label: 'Avatar 1 (cyan)',    value: '/images/avis/avatar-1.svg' },
+  { label: 'Avatar 2 (violet)',  value: '/images/avis/avatar-2.svg' },
+  { label: 'Avatar 3 (vert)',    value: '/images/avis/avatar-3.svg' },
+  { label: 'Avatar 4 (orange)',  value: '/images/avis/avatar-4.svg' },
+  { label: 'Avatar 5 (rouge)',   value: '/images/avis/avatar-5.svg' },
+  { label: 'Avatar 6 (bleu)',    value: '/images/avis/avatar-6.svg' },
+];
+
+function ImagePicker({
+  label, value, onChange, options, hint = '',
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { label: string; value: string }[];
+  hint?: string;
+}) {
+  const [custom, setCustom] = useState('');
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-300 mb-2">{label}</label>
+
+      {/* Prévisualisation */}
+      {value && (
+        <div className="mb-3 w-full h-32 rounded-xl overflow-hidden border border-white/10 bg-slate-800/50">
+          <img src={value} alt="Aperçu" loading="lazy"
+            className="w-full h-full object-cover"
+            onError={(e) => { e.currentTarget.src = options[0]?.value || ''; }} />
+        </div>
+      )}
+
+      {/* Sélection rapide */}
+      <div className="grid grid-cols-3 gap-2 mb-3">
+        {options.map(opt => (
+          <button key={opt.value} type="button"
+            onClick={() => onChange(opt.value)}
+            className={`relative h-16 rounded-xl overflow-hidden border-2 transition-all
+              ${value === opt.value ? 'border-teal-400 scale-105' : 'border-white/10 hover:border-white/30'}`}>
+            <img src={opt.value} alt={opt.label}
+              className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/40 flex items-end p-1">
+              <span className="text-[10px] text-white font-medium leading-tight">{opt.label}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* URL personnalisée */}
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={custom}
+          onChange={e => setCustom(e.target.value)}
+          placeholder="/images/mon-image.webp ou https://..."
+          className="flex-1 bg-slate-800/80 border border-white/10 rounded-xl px-3 py-2 text-white text-xs
+            placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+        />
+        <button type="button" onClick={() => { if (custom.trim()) onChange(custom.trim()); }}
+          className="px-3 py-2 bg-teal-500/20 text-teal-400 border border-teal-500/30 rounded-xl text-xs font-semibold hover:bg-teal-500/30 transition-all">
+          Appliquer
+        </button>
+      </div>
+      {hint && <p className="text-xs text-gray-500 mt-1.5">{hint}</p>}
+    </div>
+  );
+}
+
 function LoginScreen() {
   const [email, setEmail]   = useState('');
   const [pwd, setPwd]       = useState('');
@@ -648,6 +738,13 @@ function TabPortfolio({ projects, reload, showToast }: { projects:Project[]; rel
                 <Field label="Lien" value={editing.link||''} onChange={v=>setEditing(p=>p?{...p,link:v}:p)} placeholder="https://..."/>
               </div>
               <Field label="Titre *" value={editing.title} onChange={v=>setEditing(p=>p?{...p,title:v}:p)}/>
+              <ImagePicker
+                label="Image du projet"
+                value={editing.coverImage || ''}
+                onChange={v=>setEditing(p=>p?{...p,coverImage:v}:p)}
+                options={PROJET_IMG_OPTIONS}
+                hint="Choisissez une image ou déposez votre capture d'écran dans public/images/projets/"
+              />
               <Field label="Description" value={editing.desc} onChange={v=>setEditing(p=>p?{...p,desc:v}:p)} multiline rows={3}/>
               <Field label="Résultat" value={editing.result} onChange={v=>setEditing(p=>p?{...p,result:v}:p)} placeholder="+300% de ventes..."/>
               <Field label="Technologies" value={editing.tech} onChange={v=>setEditing(p=>p?{...p,tech:v}:p)} placeholder="React, Firebase..."/>
@@ -702,7 +799,11 @@ function TabBlog({ posts, reload, showToast }: { posts:BlogPost[]; reload:()=>vo
         {filtered.map(p=>(
           <motion.div key={p.id} layout className={`bg-slate-800/60 rounded-2xl border p-5 transition-all ${p.published?'border-white/5':'border-white/5 opacity-70'}`}>
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-slate-700 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">{p.coverEmoji}</div>
+              <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border border-white/10 bg-slate-700">
+                <img src={p.coverImage || '/images/blog/blog-default.svg'} alt={p.title}
+                  loading="lazy" className="w-full h-full object-cover"
+                  onError={(e)=>{e.currentTarget.src='/images/blog/blog-default.svg';}}/>
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <h4 className="font-bold text-white text-sm">{p.title}</h4>
@@ -736,6 +837,13 @@ function TabBlog({ posts, reload, showToast }: { posts:BlogPost[]; reload:()=>vo
                 <div className="flex flex-wrap gap-2">{ICONS_B.map(e=><button key={e} onClick={()=>setEditing(p=>p?{...p,coverEmoji:e}:p)} className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center transition-all ${editing.coverEmoji===e?'bg-teal-500/30 border-2 border-teal-400':'bg-slate-700 border border-white/10 hover:bg-slate-600'}`}>{e}</button>)}</div>
               </div>
               <Field label="Titre *" value={editing.title} onChange={v=>setEditing(p=>p?{...p,title:v}:p)} placeholder="Titre accrocheur..."/>
+              <ImagePicker
+                label="Image de couverture"
+                value={editing.coverImage || ''}
+                onChange={v=>setEditing(p=>p?{...p,coverImage:v}:p)}
+                options={BLOG_IMG_OPTIONS}
+                hint="Choisissez une image ci-dessous ou entrez l'URL d'une image uploadée dans public/images/blog/"
+              />
               <div className="grid sm:grid-cols-2 gap-4">
                 <div><label className="block text-sm font-medium text-gray-300 mb-1.5">Catégorie</label>
                   <select value={editing.category} onChange={e=>setEditing(p=>p?{...p,category:e.target.value}:p)}
@@ -799,9 +907,17 @@ function TabReviews({ reviews, reload, showToast }: { reviews:Review[]; reload:(
           <motion.div key={r.id} layout className={`bg-slate-800/60 rounded-2xl border p-5 flex flex-col transition-all ${r.visible?'border-white/5':'border-white/5 opacity-60'}`}>
             <div className="flex gap-1 mb-3">{[1,2,3,4,5].map(n=><Star key={n} className={`w-4 h-4 ${n<=r.stars?'fill-yellow-400 text-yellow-400':'text-gray-700'}`}/>)}</div>
             <p className="text-gray-300 text-xs italic flex-1 mb-3 line-clamp-4">« {r.text} »</p>
-            <div className="mb-3">
-              <p className="font-bold text-white text-sm">{r.author}</p>
-              <p className="text-gray-500 text-xs">{r.role}{r.company?` — ${r.company}`:''}</p>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-white/10">
+                <img src={r.avatar||`/images/avis/avatar-${((reviews.indexOf(r))%6)+1}.svg`}
+                  alt={r.author} loading="lazy"
+                  className="w-full h-full object-cover"
+                  onError={(e)=>{e.currentTarget.src='/images/avis/avatar-1.svg';}}/>
+              </div>
+              <div>
+                <p className="font-bold text-white text-sm">{r.author}</p>
+                <p className="text-gray-500 text-xs">{r.role}{r.company?` — ${r.company}`:''}</p>
+              </div>
             </div>
             <div className="flex gap-2 mt-auto">
               <button onClick={()=>toggle(r)} className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${r.visible?'bg-teal-500/20 text-teal-400':'bg-gray-700/50 text-gray-500'}`}>
@@ -828,6 +944,13 @@ function TabReviews({ reviews, reload, showToast }: { reviews:Review[]; reload:(
                 <Field label="Date" value={editing.date} onChange={v=>setEditing(p=>p?{...p,date:v}:p)}/>
               </div>
               <Field label="Témoignage *" value={editing.text} onChange={v=>setEditing(p=>p?{...p,text:v}:p)} multiline rows={4}/>
+              <ImagePicker
+                label="Photo du client (optionnel)"
+                value={editing.avatar || ''}
+                onChange={v=>setEditing(p=>p?{...p,avatar:v}:p)}
+                options={AVATAR_OPTIONS}
+                hint="Choisissez un avatar ou ajoutez la vraie photo du client dans public/images/avis/"
+              />
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Note</label>
                 <div className="flex gap-2">{[1,2,3,4,5].map(n=>(
