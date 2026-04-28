@@ -790,7 +790,7 @@ function SectionProjets({ projets: firestoreProjets }: { projets?: Project[] }) 
       }))
     : [
     {
-      emoji: '🛒',
+      emoji: '🛒', img: '/images/projets/projet-marketplace.svg',
       tag: 'Marketplace Mobile',
       title: 'Brumerie — Commerce social Abidjan',
       result: 'MVP validé · 10+ commandes réelles · Live sur Vercel',
@@ -800,7 +800,7 @@ function SectionProjets({ projets: firestoreProjets }: { projets?: Project[] }) 
       color: '#25D366',
     },
     {
-      emoji: '🤖',
+      emoji: '🤖', img: '/images/projets/projet-ia.svg',
       tag: 'Agent IA',
       title: 'Agent Ultra — IA autonome sur Android',
       result: 'Opérationnel sur Telegram · 0 serveur cloud · Auto-amélioration',
@@ -810,7 +810,7 @@ function SectionProjets({ projets: firestoreProjets }: { projets?: Project[] }) 
       color: '#a78bfa',
     },
     {
-      emoji: '📄',
+      emoji: '📄', img: '/images/projets/projet-saas.svg',
       tag: 'SaaS Documents',
       title: 'Docubuild — Documents pro en CI',
       result: 'En dev · 500K+ étudiants ciblés · Mobile money intégré',
