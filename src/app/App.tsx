@@ -494,12 +494,37 @@ interface SiteData {
   loading:  boolean;
 }
 
+// Articles par défaut affichés si Firestore vide
+const DEFAULT_BLOG: BlogPost[] = [
+  {
+    id: 'd1', title: "Comment j'ai lancé Brumerie depuis mon téléphone Android",
+    excerpt: "Tout le stack React + Firebase + Capacitor configuré depuis Termux sur Android. Voici comment j'ai construit une marketplace mobile sans ordinateur.",
+    content: '', category: 'Développement Web',
+    tags: 'React, Firebase, Android, Termux', date: '2026-04-20',
+    published: true, coverEmoji: '📱',
+  },
+  {
+    id: 'd2', title: "5 façons concrètes d'intégrer l'IA dans votre PME ivoirienne",
+    excerpt: "L'IA n'est plus réservée aux grandes entreprises. Voici 5 cas d'usage immédiatement applicables pour les entrepreneurs en Côte d'Ivoire.",
+    content: '', category: 'Intelligence Artificielle',
+    tags: 'IA, PME, Côte d'Ivoire, ChatGPT', date: '2026-04-10',
+    published: true, coverEmoji: '🤖',
+  },
+  {
+    id: 'd3', title: "Wave vs Orange Money vs MTN MoMo : lequel intégrer en priorité ?",
+    excerpt: "Comparatif complet des APIs de paiement mobile money en Côte d'Ivoire. Frais, intégration, documentation — tout ce que vous devez savoir.",
+    content: '', category: 'Business',
+    tags: 'Wave, Orange Money, paiement, API', date: '2026-03-28',
+    published: true, coverEmoji: '💳',
+  },
+];
+
 function useFirestoreData(): SiteData {
   const [data, setData] = useState<SiteData>({
     content:  null,
     projects: DEFAULT_PROJECTS_SITE,
     reviews:  DEFAULT_REVIEWS_SITE,
-    blog:     [],
+    blog:     DEFAULT_BLOG,   // ← toujours visible, remplacé par Firestore si disponible
     loading:  true,
   });
 
@@ -1060,34 +1085,10 @@ const BLOG_IMAGES: Record<string, string> = {
   'Tutoriel':                  '/images/blog/blog-formation.svg',
 };
 
-// Articles par défaut affichés si Firestore vide
-const DEFAULT_BLOG: BlogPost[] = [
-  {
-    id: 'd1', title: "Comment j'ai lancé Brumerie depuis mon téléphone Android",
-    excerpt: "Tout le stack React + Firebase + Capacitor configuré depuis Termux sur Android. Voici comment j'ai construit une marketplace mobile sans ordinateur.",
-    content: '', category: 'Développement Web',
-    tags: 'React, Firebase, Android, Termux', date: '2026-04-20',
-    published: true, coverEmoji: '📱',
-  },
-  {
-    id: 'd2', title: "5 façons concrètes d'intégrer l'IA dans votre PME ivoirienne",
-    excerpt: "L'IA n'est plus réservée aux grandes entreprises. Voici 5 cas d'usage immédiatement applicables pour les entrepreneurs en Côte d'Ivoire.",
-    content: '', category: 'Intelligence Artificielle',
-    tags: 'IA, PME, Côte d'Ivoire, ChatGPT', date: '2026-04-10',
-    published: true, coverEmoji: '🤖',
-  },
-  {
-    id: 'd3', title: "Wave vs Orange Money vs MTN MoMo : lequel intégrer en priorité ?",
-    excerpt: "Comparatif complet des APIs de paiement mobile money en Côte d'Ivoire. Frais, intégration, documentation — tout ce que vous devez savoir.",
-    content: '', category: 'Business',
-    tags: 'Wave, Orange Money, paiement, API', date: '2026-03-28',
-    published: true, coverEmoji: '💳',
-  },
-];
 
 function SectionBlog({ posts }: { posts: BlogPost[] }) {
-  // Utiliser les articles Firestore si disponibles, sinon les articles par défaut
-  const displayPosts = posts.length > 0 ? posts : DEFAULT_BLOG;
+  // posts contient toujours au moins DEFAULT_BLOG (géré par le hook)
+  const displayPosts = posts;
 
   const CATEGORY_COLORS: Record<string, string> = {
     'Intelligence Artificielle': '#0ff',
