@@ -1086,9 +1086,151 @@ const BLOG_IMAGES: Record<string, string> = {
 };
 
 
+/* ──────────────────────────────────────────────
+   MODAL ARTICLE — Lecture complète
+   ────────────────────────────────────────────── */
+function ArticleModal({ post, onClose }: { post: BlogPost; onClose: () => void }) {
+  const CATEGORY_COLORS: Record<string, string> = {
+    'Intelligence Artificielle': '#0ff',
+    'Développement Web':         '#3b82f6',
+    'Business':                  '#25D366',
+    'Formation':                 '#a78bfa',
+    'Actualités':                '#f59e0b',
+    'Tutoriel':                  '#f43f5e',
+  };
+  const catColor = CATEGORY_COLORS[post.category] || '#0ff';
+
+  // Bloquer le scroll du body quand le modal est ouvert
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
+  // Fermer avec Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  // Formater le contenu (sauts de ligne → paragraphes)
+  const formatContent = (text: string) => {
+    if (!text || text.trim() === '') return null;
+    return text.split('
+
+').filter(Boolean).map((para, i) => (
+      <p key={i} className="text-white/70 leading-relaxed mb-5">{para}</p>
+    ));
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
+
+      {/* Modal */}
+      <motion.div
+        initial={{ y: 60, opacity: 0, scale: 0.97 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        exit={{ y: 40, opacity: 0, scale: 0.97 }}
+        transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+        className="relative w-full sm:max-w-3xl max-h-[92vh] sm:max-h-[88vh] overflow-hidden
+          bg-[#06060f] border border-white/10 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col"
+      >
+        {/* Header image */}
+        <div className="relative h-48 sm:h-56 flex-shrink-0 overflow-hidden">
+          <img
+            src={post.coverImage || BLOG_IMAGES[post.category] || '/images/blog/blog-default.svg'}
+            alt={post.title}
+            className="w-full h-full object-cover"
+            onError={(e) => { e.currentTarget.src = '/images/blog/blog-default.svg'; }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#06060f] via-black/40 to-transparent" />
+
+          {/* Bouton fermer */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-10 h-10 bg-black/60 backdrop-blur-sm border border-white/20
+              rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-all"
+            aria-label="Fermer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          {/* Badge catégorie */}
+          <span className="absolute bottom-4 left-6 text-xs font-bold px-3 py-1.5 rounded-full border backdrop-blur-sm"
+            style={{ color: catColor, borderColor: `${catColor}40`, backgroundColor: 'rgba(4,4,15,0.85)' }}>
+            {post.category}
+          </span>
+        </div>
+
+        {/* Contenu scrollable */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="px-6 sm:px-10 py-8">
+            {/* Meta */}
+            <div className="flex items-center gap-4 text-xs text-white/30 mb-5">
+              <span>📅 {new Date(post.date).toLocaleDateString('fr-CI', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+              {post.tags && <span>🏷️ {post.tags.split(',').slice(0, 2).map(t => t.trim()).join(', ')}</span>}
+            </div>
+
+            {/* Titre */}
+            <h2 className="text-2xl sm:text-3xl font-black leading-tight mb-6 text-white"
+              style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+              {post.title}
+            </h2>
+
+            {/* Extrait mis en avant */}
+            <div className="p-5 rounded-2xl border-l-4 mb-8"
+              style={{ borderColor: catColor, backgroundColor: `${catColor}08` }}>
+              <p className="text-white/80 leading-relaxed font-medium">{post.excerpt}</p>
+            </div>
+
+            {/* Contenu complet ou message si vide */}
+            {post.content && post.content.trim() !== ''
+              ? <div className="prose-content">{formatContent(post.content)}</div>
+              : (
+                <div className="text-center py-10">
+                  <span className="text-4xl block mb-4">✍️</span>
+                  <p className="text-white/40 text-sm mb-2">Contenu complet en cours de rédaction.</p>
+                  <p className="text-white/30 text-xs">Tu peux ajouter le contenu depuis le Dashboard Admin → Blog → Modifier.</p>
+                </div>
+              )
+            }
+
+            {/* Tags */}
+            {post.tags && (
+              <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-white/5">
+                {post.tags.split(',').map(tag => (
+                  <span key={tag.trim()} className="text-xs px-3 py-1 bg-white/5 border border-white/10 rounded-full text-white/40">
+                    #{tag.trim()}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* CTA WhatsApp en bas */}
+            <div className="mt-8 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <p className="text-white/40 text-sm">Un projet en tête après cet article ?</p>
+              <BtnWA size="sm" msg={encodeURIComponent(`Bonjour Tché 👋 j'ai lu ton article "${post.title.slice(0, 40)}..." et j'aimerais qu'on en parle.`)}>
+                En discuter sur WhatsApp
+              </BtnWA>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function SectionBlog({ posts }: { posts: BlogPost[] }) {
-  // posts contient toujours au moins DEFAULT_BLOG (géré par le hook)
   const displayPosts = posts;
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
 
   const CATEGORY_COLORS: Record<string, string> = {
     'Intelligence Artificielle': '#0ff',
@@ -1123,6 +1265,7 @@ function SectionBlog({ posts }: { posts: BlogPost[] }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
+                onClick={() => setSelectedPost(post)}
                 className="group flex flex-col bg-white/3 border border-white/8 rounded-3xl overflow-hidden
                   hover:border-[#0ff]/20 hover:bg-white/5 transition-all duration-300 cursor-pointer"
               >
@@ -1204,6 +1347,16 @@ function SectionBlog({ posts }: { posts: BlogPost[] }) {
           </motion.div>
         )}
       </div>
+
+      {/* Modal de lecture — s'ouvre au clic sur un article */}
+      <AnimatePresence>
+        {selectedPost && (
+          <ArticleModal
+            post={selectedPost}
+            onClose={() => setSelectedPost(null)}
+          />
+        )}
+      </AnimatePresence>
     </Section>
   );
 }
