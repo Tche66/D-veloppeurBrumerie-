@@ -1135,9 +1135,7 @@ function ArticleModal({ post, onClose }: { post: BlogPost; onClose: () => void }
   // Formater le contenu (sauts de ligne → paragraphes)
   const formatContent = (text: string) => {
     if (!text || text.trim() === '') return null;
-    return text.split('
-
-').filter(Boolean).map((para, i) => (
+    return text.split('\n\n').filter(Boolean).map((para, i) => (
       <p key={i} className="text-white/70 leading-relaxed mb-5">{para}</p>
     ));
   };
