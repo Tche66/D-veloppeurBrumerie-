@@ -26,7 +26,7 @@ import {
   LayoutDashboard, FileText, Briefcase, MessageSquare, Star,
   BarChart3, Settings, LogOut, Eye, EyeOff, Trash2, Edit3,
   Plus, Save, X, CheckCircle, AlertCircle, TrendingUp, Users,
-  MousePointerClick, Mail, Clock, Upload, Upload, Shield, Bell,
+  MousePointerClick, Mail, Clock, Upload, Shield, Bell,
   ChevronRight, Search, RefreshCw, Wrench, Newspaper,
   ArrowUp, ArrowDown, Image, Link, Tag, Database, Loader2,
 } from 'lucide-react';
