@@ -26,7 +26,7 @@ import {
   LayoutDashboard, FileText, Briefcase, MessageSquare, Star,
   BarChart3, Settings, LogOut, Eye, EyeOff, Trash2, Edit3,
   Plus, Save, X, CheckCircle, AlertCircle, TrendingUp, Users,
-  MousePointerClick, Mail, Clock, Upload, Shield, Bell,
+  MousePointerClick, Mail, Clock, Upload, Upload, Shield, Bell,
   ChevronRight, Search, RefreshCw, Wrench, Newspaper,
   ArrowUp, ArrowDown, Image, Link, Tag, Database, Loader2,
 } from 'lucide-react';
@@ -216,7 +216,20 @@ function ImagePicker({
   options: { label: string; value: string }[];
   hint?: string;
 }) {
-  const [custom, setCustom] = useState('');
+  const [custom, setCustom]     = useState('');
+  const [tab, setTab]           = useState<'upload'|'url'|'placeholder'>('upload');
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const reader = new FileReader();
+    reader.onload = (ev) => { onChange(ev.target?.result as string); setUploading(false); };
+    reader.onerror = () => setUploading(false);
+    reader.readAsDataURL(file);
+  };
 
   return (
     <div>
@@ -224,48 +237,111 @@ function ImagePicker({
 
       {/* Prévisualisation */}
       {value && (
-        <div className="mb-3 w-full h-32 rounded-xl overflow-hidden border border-white/10 bg-slate-800/50">
-          <img src={value} alt="Aperçu" loading="lazy"
-            className="w-full h-full object-cover"
-            onError={(e) => { e.currentTarget.src = options[0]?.value || ''; }} />
+        <div className="mb-3 relative w-full h-36 rounded-xl overflow-hidden border border-white/10 bg-slate-800/50 group">
+          <img src={value} alt="Aperçu" loading="lazy" className="w-full h-full object-cover"
+            onError={(e) => { e.currentTarget.src = options[0]?.value || ''; }}/>
+          <button type="button" onClick={() => onChange('')}
+            className="absolute top-2 right-2 w-7 h-7 bg-black/70 rounded-full flex items-center justify-center
+              opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/80">
+            <X className="w-3.5 h-3.5 text-white"/>
+          </button>
         </div>
       )}
 
-      {/* Sélection rapide */}
-      <div className="grid grid-cols-3 gap-2 mb-3">
-        {options.map(opt => (
-          <button key={opt.value} type="button"
-            onClick={() => onChange(opt.value)}
-            className={`relative h-16 rounded-xl overflow-hidden border-2 transition-all
-              ${value === opt.value ? 'border-teal-400 scale-105' : 'border-white/10 hover:border-white/30'}`}>
-            <img src={opt.value} alt={opt.label}
-              className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/40 flex items-end p-1">
-              <span className="text-[10px] text-white font-medium leading-tight">{opt.label}</span>
-            </div>
+      {/* Onglets */}
+      <div className="flex gap-1 mb-3 p-1 bg-slate-800/60 rounded-xl">
+        {([
+          { id: 'upload' as const,      label: '📱 Galerie'   },
+          { id: 'url' as const,         label: '🔗 URL'       },
+          { id: 'placeholder' as const, label: '🎨 Prédéfini' },
+        ]).map(t => (
+          <button key={t.id} type="button" onClick={() => setTab(t.id)}
+            className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all
+              ${tab === t.id ? 'bg-teal-500/20 text-teal-300 border border-teal-500/30' : 'text-gray-500 hover:text-gray-300'}`}>
+            {t.label}
           </button>
         ))}
       </div>
 
-      {/* URL personnalisée */}
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={custom}
-          onChange={e => setCustom(e.target.value)}
-          placeholder="/images/mon-image.webp ou https://..."
-          className="flex-1 bg-slate-800/80 border border-white/10 rounded-xl px-3 py-2 text-white text-xs
-            placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-500/50"
-        />
-        <button type="button" onClick={() => { if (custom.trim()) onChange(custom.trim()); }}
-          className="px-3 py-2 bg-teal-500/20 text-teal-400 border border-teal-500/30 rounded-xl text-xs font-semibold hover:bg-teal-500/30 transition-all">
-          Appliquer
-        </button>
-      </div>
-      {hint && <p className="text-xs text-gray-500 mt-1.5">{hint}</p>}
+      {/* Upload galerie */}
+      {tab === 'upload' && (
+        <div className="space-y-3">
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload}/>
+          <button type="button" onClick={() => fileRef.current?.click()}
+            className="w-full py-6 border-2 border-dashed border-white/20 rounded-xl text-center
+              hover:border-teal-500/50 hover:bg-teal-500/5 transition-all group">
+            {uploading ? (
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
+                <motion.div className="w-4 h-4 border-2 border-teal-400 border-t-transparent rounded-full"
+                  animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.7, ease: 'linear' }}/>
+                Chargement...
+              </div>
+            ) : (
+              <>
+                <Upload className="w-8 h-8 mx-auto mb-2 text-gray-500 group-hover:text-teal-400 transition-colors"/>
+                <p className="text-sm text-gray-300 font-medium">Appuyer pour choisir une photo</p>
+                <p className="text-xs text-gray-500 mt-1">Depuis galerie ou caméra · JPG, PNG, WebP</p>
+              </>
+            )}
+          </button>
+          <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
+            <p className="text-xs text-yellow-300 font-semibold">⚠️ Image temporaire</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Pour une image permanente sur le site : copiez-la dans <code className="text-teal-400">public/images/blog/</code>
+              puis collez le chemin dans l'onglet URL.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* URL externe */}
+      {tab === 'url' && (
+        <div className="space-y-3">
+          <div className="flex gap-2">
+            <input type="text" value={custom} onChange={e => setCustom(e.target.value)}
+              placeholder="https://i.imgur.com/xxx.jpg  ou  /images/blog/article.webp"
+              className="flex-1 bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm
+                placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-500/50"/>
+            <button type="button" onClick={() => { if(custom.trim()){ onChange(custom.trim()); setCustom(''); }}}
+              className="px-4 py-2.5 bg-teal-500/20 text-teal-400 border border-teal-500/30 rounded-xl text-sm font-bold hover:bg-teal-500/30 transition-all">
+              OK
+            </button>
+          </div>
+          <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-xs space-y-1.5">
+            <p className="text-blue-300 font-semibold">💡 Hébergement gratuit d'images :</p>
+            <p className="text-gray-400">• <strong className="text-white">imgur.com</strong> → Uploader → clic droit → "Copier l'adresse de l'image"</p>
+            <p className="text-gray-400">• <strong className="text-white">imgbb.com</strong> → Upload gratuit, lien direct</p>
+            <p className="text-gray-400">• <strong className="text-white">Local</strong> → <code className="text-teal-400">/images/blog/article.webp</code></p>
+          </div>
+        </div>
+      )}
+
+      {/* Images prédéfinies */}
+      {tab === 'placeholder' && (
+        <div className="grid grid-cols-3 gap-2">
+          {options.map(opt => (
+            <button key={opt.value} type="button" onClick={() => onChange(opt.value)}
+              className={`relative h-20 rounded-xl overflow-hidden border-2 transition-all
+                ${value === opt.value ? 'border-teal-400 scale-105 shadow-lg shadow-teal-500/20' : 'border-white/10 hover:border-white/30'}`}>
+              <img src={opt.value} alt={opt.label} className="w-full h-full object-cover"/>
+              <div className="absolute inset-0 bg-black/50 flex items-end p-1.5">
+                <span className="text-[10px] text-white font-semibold leading-tight">{opt.label}</span>
+              </div>
+              {value === opt.value && (
+                <div className="absolute top-1 right-1 w-5 h-5 bg-teal-500 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-3 h-3 text-white"/>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {hint && <p className="text-xs text-gray-500 mt-2">{hint}</p>}
     </div>
   );
 }
+
 
 function LoginScreen() {
   const [email, setEmail]   = useState('');

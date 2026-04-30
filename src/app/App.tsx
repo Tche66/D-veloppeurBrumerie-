@@ -882,6 +882,25 @@ function SectionProjets({ projets: firestoreProjets }: { projets?: Project[] }) 
                   </div>
                 </div>
               </div>
+
+              {/* Bouton "Voir le site" — visible si un lien est défini */}
+              {p.link && (
+                <div className="px-8 pb-6">
+                  <a
+                    href={p.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl border
+                      text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    style={{ color: p.color, borderColor: `${p.color}40`, backgroundColor: `${p.color}10` }}
+                  >
+                    <span>🔗</span>
+                    Voir le site en ligne
+                    <ArrowRight className="w-4 h-4" />
+                  </a>
+                </div>
+              )}
             </motion.div>
           ))}
         </div>
