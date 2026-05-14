@@ -171,7 +171,7 @@ function Nav() {
       <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
         {/* Logo */}
         <a href="#" className="font-black text-xl tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-          tché<span className="text-[#0ff]">.</span>dev
+          tché<span className="text-[#0ff]">code</span>
         </a>
 
         {/* Desktop */}
@@ -242,7 +242,7 @@ function Hero() {
 
             {/* Badge */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <Chip>🟢 Disponible · Abidjan, Côte d'Ivoire</Chip>
+              <Chip>🟢 Tchécode · Disponible · Abidjan</Chip>
             </motion.div>
 
             {/* Headline */}
@@ -348,7 +348,7 @@ function Hero() {
                   rounded-full text-xs font-bold shadow-xl"
               >
                 <span className="text-[#0ff]">⚡</span>{' '}
-                <span className="text-white">Full-Stack & IA · Fondateur Brumerie</span>
+                <span className="text-white">Tchécode · Full-Stack & IA · Abidjan</span>
               </motion.div>
 
               {/* Badge stats haut droit */}
@@ -569,64 +569,124 @@ function useFirestoreData(): SiteData {
 function SectionOffres() {
   const offres = [
     {
-      id: 'mvp',
+      id: 'site',
       badge: '🔥 Le plus populaire',
-      icon: '🚀',
-      name: 'MVP Express',
-      tagline: 'De zéro à une app fonctionnelle',
-      price: '150k – 300k FCFA',
+      icon: '🖥️',
+      name: 'Site Web Professionnel',
+      tagline: 'De zéro à un site qui convertit',
+      price: '150k – 400k FCFA',
       delay: '7 jours',
       color: '#0ff',
       waMsg: WA_MSG_MVP,
       features: [
-        'Application web ou mobile complète',
-        'Paiement mobile money intégré (Wave, OM, MTN)',
-        'Interface responsive mobile-first',
-        'Gestion utilisateurs / dashboard',
+        'Site vitrine ou e-commerce complet',
+        'Design moderne, responsive mobile-first',
+        'SEO optimisé (Google, page 1)',
+        'Formulaire de contact + WhatsApp intégré',
         'Hébergement 1 an inclus',
         'Support WhatsApp 30 jours post-livraison',
       ],
-      ideal: 'Entrepreneurs avec une idée, startups early-stage',
+      ideal: 'Entrepreneurs, PME, commerces qui veulent une présence pro en ligne',
+    },
+    {
+      id: 'design',
+      badge: '🎨 Nouveau service',
+      icon: '✨',
+      name: 'Design & Identité Visuelle',
+      tagline: 'Logo · Affiches · Flyers · Réseaux',
+      price: '30k – 150k FCFA',
+      delay: '2–5 jours',
+      color: '#a78bfa',
+      waMsg: encodeURIComponent("Bonjour Tché 👋 je suis intéressé par vos services de design (logo/affiches/réseaux). On peut en parler ?"),
+      features: [
+        'Création de logo professionnel (3 propositions)',
+        'Affiches & flyers print et digital',
+        'Visuels pour réseaux sociaux (Instagram, Facebook, TikTok)',
+        'Charte graphique complète (couleurs, typographies)',
+        'Bannières publicitaires & couvertures',
+        'Fichiers sources livrés (PNG, PDF, SVG)',
+      ],
+      ideal: 'Startups, commerçants, artistes qui veulent une image pro et mémorable',
     },
     {
       id: 'auto',
       badge: '⚡ ROI rapide',
       icon: '🤖',
-      name: 'Automatisation Business',
+      name: 'Automatisation & IA',
       tagline: 'Gagnez 10h/semaine automatiquement',
-      price: '50k – 150k FCFA',
-      delay: '3 jours',
-      color: '#a78bfa',
+      price: '50k – 200k FCFA',
+      delay: '3–5 jours',
+      color: '#25D366',
       waMsg: WA_MSG_AUTO,
       features: [
         'Bot WhatsApp intelligent (commandes, FAQ, devis)',
-        'Tunnel de vente automatisé',
-        'Notifications clients automatiques',
-        'Tableaux de bord temps réel',
-        'Intégration avec vos outils existants',
-        'Formation à la prise en main',
+        'Automatisation de tâches répétitives',
+        'Intégration IA dans vos outils existants',
+        'Gestion réseaux sociaux automatisée',
+        'Tableaux de bord et rapports automatiques',
+        'Formation à la prise en main incluse',
       ],
-      ideal: 'Commerçants, PME, prestataires de service',
+      ideal: 'Commerçants, PME, prestataires qui veulent gagner du temps',
+    },
+    {
+      id: 'social',
+      badge: '📱 Visibilité garantie',
+      icon: '📲',
+      name: 'Gestion Réseaux Sociaux',
+      tagline: 'Votre présence digitale, on s'en occupe',
+      price: '50k – 120k FCFA/mois',
+      delay: 'Mensuel',
+      color: '#f59e0b',
+      waMsg: encodeURIComponent("Bonjour Tché 👋 je suis intéressé par la gestion de mes réseaux sociaux. On peut en parler ?"),
+      features: [
+        'Stratégie de contenu personnalisée',
+        'Création de posts (visuels + textes) 3×/semaine',
+        'Publication et programmation automatique',
+        'Community management (réponses, interactions)',
+        'Rapport mensuel de performance',
+        'Instagram · Facebook · TikTok · LinkedIn',
+      ],
+      ideal: 'Entrepreneurs et PME qui n'ont pas le temps de gérer leurs réseaux',
+    },
+    {
+      id: 'formation',
+      badge: '🎓 Expertise terrain',
+      icon: '🧠',
+      name: 'Formation IA Individuelle',
+      tagline: 'Maîtrisez l'IA en 1 journée',
+      price: '25k – 80k FCFA',
+      delay: '1 journée',
+      color: '#f43f5e',
+      waMsg: encodeURIComponent("Bonjour Tché 👋 je suis intéressé par une formation IA individuelle. On peut en parler ?"),
+      features: [
+        'Formation 100% pratique, pas de jargon',
+        'ChatGPT, Midjourney, Gemini, Claude',
+        'Cas d'usage concrets pour votre métier',
+        'Automatisation de vos tâches quotidiennes',
+        'Génération de contenus et visuels par IA',
+        'Support WhatsApp 2 semaines post-formation',
+      ],
+      ideal: 'Entrepreneurs, commerciaux, managers qui veulent utiliser l'IA dès demain',
     },
     {
       id: 'scale',
-      badge: '📈 Pour scaler',
+      badge: '📈 Sur mesure',
       icon: '⚡',
-      name: 'Upgrade & Scaling',
-      tagline: 'Votre app mérite mieux',
-      price: '300k+ FCFA',
-      delay: 'Sur devis',
-      color: '#25D366',
+      name: 'Projet Sur Mesure',
+      tagline: 'Un besoin spécifique ? On en parle.',
+      price: 'Sur devis',
+      delay: 'Selon scope',
+      color: '#3b82f6',
       waMsg: WA_MSG_SCALE,
       features: [
-        'Audit technique complet de votre code',
-        'Refonte ou extension de fonctionnalités',
-        'Optimisation performance et SEO',
-        'Intégration IA (chatbot, recommandations…)',
-        'Migration vers une architecture scalable',
-        'Accompagnement CTO à temps partiel',
+        'Audit complet de votre situation digitale',
+        'Refonte ou extension de site/app existant',
+        'Combinaison de plusieurs services',
+        'Accompagnement CTO freelance',
+        'Plan de croissance digitale personnalisé',
+        'Suivi et optimisation continue',
       ],
-      ideal: 'Apps existantes qui veulent évoluer',
+      ideal: 'Structures avec des besoins complexes ou multiples',
     },
   ];
 
@@ -634,12 +694,12 @@ function SectionOffres() {
     <Section id="offres" className="py-24 bg-[#06060f]">
       <div className="max-w-6xl mx-auto px-5">
         <div className="text-center mb-16">
-          <Chip>Les offres</Chip>
+          <Chip>Les offres Tchécode</Chip>
           <h2 className="mt-6 text-4xl sm:text-5xl font-black" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            3 offres. <span className="text-[#0ff]">Prix clairs.</span> Résultats garantis.
+            6 services. <span className="text-[#0ff]">Prix clairs.</span> Résultats garantis.
           </h2>
           <p className="mt-4 text-white/50 text-lg max-w-2xl mx-auto">
-            Pas de devis vague. Pas de surprise. Vous savez exactement ce que vous payez et ce que vous recevez.
+            Du site web au logo, de l'IA à la gestion réseaux — tout ce qu'il faut pour dominer le digital en Côte d'Ivoire.
           </p>
         </div>
 
@@ -647,7 +707,7 @@ function SectionOffres() {
           {offres.map((o, i) => (
             <motion.div key={o.id}
               initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }} transition={{ delay: i * 0.15 }}
+              viewport={{ once: true }} transition={{ delay: i * 0.1 }}
               className="relative flex flex-col rounded-3xl border bg-white/3 overflow-hidden
                 hover:bg-white/5 transition-all duration-300 group"
               style={{ borderColor: `${o.color}30` }}>
@@ -655,53 +715,43 @@ function SectionOffres() {
               {/* Accent top */}
               <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, transparent, ${o.color}, transparent)` }} />
 
-              <div className="p-8 flex flex-col flex-1">
-                {/* Badge */}
-                <span className="text-xs font-bold mb-4 opacity-80" style={{ color: o.color }}>{o.badge}</span>
+              <div className="p-7 flex flex-col flex-1">
+                <span className="text-xs font-bold mb-3 opacity-80" style={{ color: o.color }}>{o.badge}</span>
 
-                {/* Titre */}
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-3xl">{o.icon}</span>
-                  <h3 className="text-2xl font-black" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{o.name}</h3>
+                  <h3 className="text-xl font-black" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{o.name}</h3>
                 </div>
-                <p className="text-white/50 text-sm mb-6">{o.tagline}</p>
+                <p className="text-white/50 text-sm mb-5">{o.tagline}</p>
 
-                {/* Prix */}
-                <div className="flex items-baseline gap-3 mb-2">
-                  <span className="text-3xl font-black" style={{ color: o.color }}>{o.price}</span>
+                <div className="flex items-baseline gap-3 mb-1">
+                  <span className="text-2xl font-black" style={{ color: o.color }}>{o.price}</span>
                 </div>
-                <div className="flex items-center gap-2 mb-8">
+                <div className="flex items-center gap-2 mb-7">
                   <Timer className="w-4 h-4 text-white/40" />
-                  <span className="text-sm text-white/40">Livraison : <strong className="text-white/70">{o.delay}</strong></span>
+                  <span className="text-sm text-white/40">Délai : <strong className="text-white/70">{o.delay}</strong></span>
                 </div>
 
-                {/* Features */}
-                <ul className="space-y-3 mb-8 flex-1">
+                <ul className="space-y-2.5 mb-6 flex-1">
                   {o.features.map((f, fi) => (
-                    <li key={fi} className="flex items-start gap-3 text-sm text-white/70">
+                    <li key={fi} className="flex items-start gap-2.5 text-sm text-white/70">
                       <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: o.color }} />
                       {f}
                     </li>
                   ))}
                 </ul>
 
-                {/* Idéal pour */}
-                <p className="text-xs text-white/30 mb-6 border-t border-white/5 pt-4">
+                <p className="text-xs text-white/30 mb-5 border-t border-white/5 pt-4">
                   <span className="text-white/50">Idéal pour :</span> {o.ideal}
                 </p>
 
-                {/* CTA */}
-                <motion.a
-                  href={WA(o.waMsg)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 py-4 rounded-2xl font-bold text-sm transition-all"
+                <motion.a href={WA(o.waMsg)} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-sm transition-all"
                   style={{ background: `${o.color}20`, border: `1px solid ${o.color}40`, color: o.color }}
                   whileHover={{ backgroundColor: `${o.color}30`, scale: 1.02 }}
-                  whileTap={{ scale: 0.97 }}
-                >
+                  whileTap={{ scale: 0.97 }}>
                   <MessageCircle className="w-4 h-4" />
-                  Je veux ce pack
+                  Je veux ce service
                   <ArrowRight className="w-4 h-4" />
                 </motion.a>
               </div>
@@ -710,16 +760,14 @@ function SectionOffres() {
         </div>
 
         {/* Garantie */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-          className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-8 p-6
-            bg-[#0ff]/5 border border-[#0ff]/15 rounded-2xl text-center sm:text-left"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+          className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6 p-6
+            bg-[#0ff]/5 border border-[#0ff]/15 rounded-2xl text-center sm:text-left">
           <Shield className="w-10 h-10 text-[#0ff] flex-shrink-0" />
           <div>
-            <p className="font-bold text-white text-lg">Garantie satisfaction</p>
+            <p className="font-bold text-white text-lg">Satisfaction garantie sur chaque service</p>
             <p className="text-white/50 text-sm mt-1">
-              Si le livrable ne correspond pas aux specs validées ensemble, je retravaille gratuitement jusqu'à votre satisfaction totale.
+              Si le livrable ne correspond pas aux specs validées, je retravaille gratuitement jusqu'à votre satisfaction totale.
             </p>
           </div>
         </motion.div>
@@ -728,42 +776,7 @@ function SectionOffres() {
   );
 }
 
-/* ──────────────────────────────────────────────
-   STATS
-   ────────────────────────────────────────────── */
-function SectionStats() {
-  const stats = [
-    { v: 50,  s: '+', label: 'Projets livrés'             },
-    { v: 7,   s: 'j', label: 'Délai moyen de livraison'   },
-    { v: 30,  s: '+', label: 'Clients en Afrique & Europe' },
-    { v: 100, s: '%', label: 'Satisfaction client'         },
-  ];
 
-  return (
-    <Section className="py-16 bg-gradient-to-b from-[#06060f] to-[#04040f]">
-      <div className="max-w-5xl mx-auto px-5">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((s, i) => (
-            <motion.div key={i}
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-              className="text-center p-6 bg-white/3 rounded-2xl border border-white/8"
-            >
-              <p className="text-4xl font-black text-[#0ff]">
-                <Counter to={s.v} suffix={s.s} />
-              </p>
-              <p className="text-sm text-white/50 mt-2">{s.label}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </Section>
-  );
-}
-
-/* ──────────────────────────────────────────────
-   PROJETS / ÉTUDES DE CAS
-   ────────────────────────────────────────────── */
 function SectionProjets({ projets: firestoreProjets }: { projets?: Project[] }) {
   // Config visuelle locale (emoji, couleur, image) — par catégorie
   const visualConfig = [
@@ -1588,9 +1601,9 @@ function Footer() {
       <div className="max-w-6xl mx-auto px-5 flex flex-col sm:flex-row items-center justify-between gap-6">
         <div>
           <p className="font-black text-xl" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            tché<span className="text-[#0ff]">.</span>dev
+            tché<span className="text-[#0ff]">code</span>
           </p>
-          <p className="text-white/30 text-xs mt-1">Je code depuis Abidjan. Je build pour le monde.</p>
+          <p className="text-white/30 text-xs mt-1">Tchécode — Vos idées en produits digitaux.</p>
         </div>
         <div className="flex items-center gap-6">
           <a href={WA()} target="_blank" rel="noopener noreferrer"
@@ -1602,7 +1615,7 @@ function Footer() {
             contact@brumerie.ci
           </a>
         </div>
-        <p className="text-white/20 text-xs">© {new Date().getFullYear()} Doukoua Tché Serge Alain</p>
+        <p className="text-white/20 text-xs">© {new Date().getFullYear()} Tchécode · Doukoua Tché Serge Alain</p>
       </div>
     </footer>
   );
